@@ -64,10 +64,11 @@ Contact information :
 static const uint8_t progress_bar[CGROM_PROGRESS_BAR_SIZE] = {0x00u,0x10u,0x18u,0x1Cu,0x1Eu,0x1Fu};
 static uint8_t current_bar_pixel;
 static uint8_t current_cell_load;
+static void lcdInitBar(void);
+#endif
+
 #ifdef USE_I2C_BUS
 static uint8_t current_status_backlight = (0 << BACKLIGHT);
-#endif
-static void lcdInitBar(void);
 #endif
 
 /*!	\brief	Low-level functions. */
@@ -116,7 +117,7 @@ static void lcd_busy_delay(void)
 /*!	\brief	Creates delay multiples of 10us. */
 static void lcd10usDelay(volatile uint32_t us)
 {
-	/* Сonversion to us */
+	/* пїЅonversion to us */
 	us *= MCU_FREQ_VALUE;
 	/* Wait */
 	while (us > 0u)
@@ -507,9 +508,9 @@ void lcdDrawChar( uint8_t* vector,
 /*!	\details	Erase a symbol from the left of the cursor. */
 void lcdBackSpace(void)
 {
-	cursorShift(LEFT);		// Рухаємо курсор на одну позицію вліво
-	lcdPutc(' ');			// Очищаємо, після чого відбувається автоінкремент вправо
-	cursorShift(LEFT);		// Рухаємо курсор на одну позицію вліво
+	cursorShift(LEFT);		// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+	lcdPutc(' ');			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+	cursorShift(LEFT);		// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 }
 
 /*!	\brief	Returns 10^n value. */
@@ -562,13 +563,13 @@ void lcdFtos(float value, uint8_t n)
 		value = -value;
 	}
 
-	lcdItos((int32_t)value); // Вивід цілої частини
+	lcdItos((int32_t)value); // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
 	if (n > 0u)
 	{
-		lcdPutc('.'); // Крапка
+		lcdPutc('.'); // пїЅпїЅпїЅпїЅпїЅпїЅ
 
-		lcdNtos((uint32_t)(value * (float)lcdPow10(n)), n); // Вивід дробової частини
+		lcdNtos((uint32_t)(value * (float)lcdPow10(n)), n); // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	}
 }
 
@@ -723,6 +724,27 @@ void lcdInit(void)
 	lcd10usDelay(INIT_CYCLE_TIME);
 	lcdWrite(0x30);
 	lcd10usDelay(INIT_CYCLE_TIME);
+#ifdef USE_LCD2004
+	lcdWrite(0x03);
+	HAL_Delay(4);
+	lcdWrite(0x03);
+	HAL_Delay(100);
+	lcdWrite(0x03);
+	HAL_Delay(1);
+	lcdWrite(0x02);
+	HAL_Delay(1);
+#endif
+#else
+#ifdef USE_LCD2004
+	lcdConfig(0x03);
+	HAL_Delay(4);
+	lcdConfig(0x03);
+	HAL_Delay(100);
+	lcdConfig(0x03);
+	HAL_Delay(1);
+	lcdConfig(0x02);
+	HAL_Delay(1);
+#endif
 #endif
 	lcdConfig(DEFAULT_DISPLAY_CONFIG);
 	lcdSetMode(DEFAULT_VIEW_MODE);
