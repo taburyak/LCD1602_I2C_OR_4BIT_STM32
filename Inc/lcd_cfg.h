@@ -35,7 +35,7 @@ Contact information :
 //#include "stm32f1xx.h"
 #include "main.h"
 
-#define USE_LCD2004
+//#define USE_LCD2004
 #define USE_I2C_BUS
 
 //-------------------------------
