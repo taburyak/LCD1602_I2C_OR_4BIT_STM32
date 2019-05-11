@@ -32,13 +32,10 @@ Contact information :
 #ifndef LCD_CFG_H
 #define LCD_CFG_H
 
-/* Include here the header file of your microcontroller */
-//#include "stm32f10x.h"
-//#include "stm32f10x_gpio.h"
-//#include "stm32f10x_rcc.h"
-//#include <avr/io.h>
-#include "stm32f1xx.h"
+//#include "stm32f1xx.h"
+#include "main.h"
 
+#define USE_LCD2004
 #define USE_I2C_BUS
 
 //-------------------------------
@@ -46,8 +43,8 @@ Contact information :
 //-------------------------------
 #ifdef USE_I2C_BUS
 
-#define LCD_I2C_PORT		hi2c1
-#define LCD_I2C_ADDRESS		0x3F
+#define LCD_I2C_PORT		hi2c2
+#define LCD_I2C_ADDRESS		0x27
 
 #define LCD_I2C_ADDRESS_8B	(LCD_I2C_ADDRESS << 1)
 #define PIN_RS    			(1 << 0)
@@ -124,8 +121,15 @@ extern I2C_HandleTypeDef LCD_I2C_PORT;
 //-------------------------------
 // CONFIGURE LCD WITH 4 LINES
 //-------------------------------
+#define START_ADDRESS_1st_LINE		0x00u
+#define START_ADDRESS_2nd_LINE		0x40u
+#ifdef USE_LCD2004
+#define START_ADDRESS_3rd_LINE		0x14u
+#define START_ADDRESS_4th_LINE		0x54u
+#else
 #define START_ADDRESS_3rd_LINE		0x10u
 #define START_ADDRESS_4th_LINE		0x50u
+#endif
 
 //-------------------------------
 // SET FORMATTED OUTPUT OPTIONS
@@ -136,7 +140,7 @@ extern I2C_HandleTypeDef LCD_I2C_PORT;
 //-------------------------------
 // PROGRESS BAR OPTIONS
 //-------------------------------
-#define USE_PROGRESS_BAR			1u				/* 1 (true) or 0 (false) */
+#define USE_PROGRESS_BAR			0u				/* 1 (true) or 0 (false) */
 #define USE_REGRESS_BAR				1u				/* 1 (true) or 0 (false) */
 #define PROGRESS_BAR_LINE			LCD_2nd_LINE	/* Select lcd line: 1, 2, 3, 4, ... */
 #define PROGRESS_BAR_HEIGHT			5u  			/* in pixel: 1(min), 2, 3, 4, 5, 6, 7, 8(max) */

@@ -49,8 +49,6 @@ extern "C" {
 #define LCD_2nd_LINE					2u
 #define LCD_3rd_LINE					3u
 #define LCD_4th_LINE					4u
-#define START_ADDRESS_1st_LINE			0x00u
-#define START_ADDRESS_2nd_LINE			0x40u
 /* 5x8 pixel font only */
 #define FONT_HEIGHT    					8u	/* 8 pixels */
 #define FONT_WIDTH						5u	/* 5 pixels */
@@ -65,10 +63,10 @@ extern "C" {
 //-------------------------------
 // ENTRY MODE MACROS
 //-------------------------------
-#define ENTRY_MODE_DEC_NO_SHIFT			0x04u // справа наліво, без зсуву видимої частини DDRRAM пам'яті
-#define ENTRY_MODE_DEC_WITH_SHIFT     	0x05u // справа наліво, зі зсувом видимої частини DDRRAM пам'яті
-#define ENTRY_MODE_INC_NO_SHIFT	      	0x06u // зліва направо, без зсуву видимої частини DDRRAM пам'яті
-#define ENTRY_MODE_INC_WITH_SHIFT     	0x07u // зліва направо, зі зсувом видимої частини DDRRAM пам'яті
+#define ENTRY_MODE_DEC_NO_SHIFT			0x04u // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ DDRRAM пїЅпїЅпїЅ'пїЅпїЅ
+#define ENTRY_MODE_DEC_WITH_SHIFT     	0x05u // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ DDRRAM пїЅпїЅпїЅ'пїЅпїЅ
+#define ENTRY_MODE_INC_NO_SHIFT	      	0x06u // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ DDRRAM пїЅпїЅпїЅ'пїЅпїЅ
+#define ENTRY_MODE_INC_WITH_SHIFT     	0x07u // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ DDRRAM пїЅпїЅпїЅ'пїЅпїЅ
 
 //-------------------------------
 // VIEW_MODE MACROS
