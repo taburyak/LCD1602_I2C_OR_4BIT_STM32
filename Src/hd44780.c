@@ -429,7 +429,7 @@ void lcdPutc(uint8_t data)
 #ifdef USE_I2C_BUS
 	sendInternal(LCD_I2C_ADDRESS_8B, data, PIN_RS);
 #else
-	CLR(LCD_RS_OUT, LCD_RS);
+	SET(LCD_RS_OUT, LCD_RS)	
 	lcdWrite(data);
 	/* Note:
 	 * After execution of the CGRAM/DDRAM data write/read instruction, the RAM address counter is incremented
