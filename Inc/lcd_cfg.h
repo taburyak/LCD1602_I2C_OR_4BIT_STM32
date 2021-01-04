@@ -44,12 +44,13 @@ Contact information :
 #ifdef USE_I2C_BUS
 
 #define LCD_I2C_PORT		hi2c2
-#define LCD_I2C_ADDRESS		0x27
+//#define LCD_I2C_ADDRESS		0x27
+#define LCD_I2C_ADDRESS		0x3F
 
 #define LCD_I2C_ADDRESS_8B	(LCD_I2C_ADDRESS << 1)
 #define PIN_RS    			(1 << 0)
 #define PIN_EN    			(1 << 2)
-#define BACKLIGHT 			3
+#define BACKLIGHT 			(1 << 3)
 
 extern I2C_HandleTypeDef LCD_I2C_PORT;
 
