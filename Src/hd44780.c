@@ -486,9 +486,9 @@ void lcdDrawChar( uint8_t* vector,
 /*!	\details	Erase a symbol from the left of the cursor. */
 void lcdBackSpace(void)
 {
-	cursorShift(LEFT);		// ������ ������ �� ���� ������� ����
-	lcdPutc(' ');			// �������, ���� ���� ���������� ������������ ������
-	cursorShift(LEFT);		// ������ ������ �� ���� ������� ����
+	cursorShift(LEFT);
+	lcdPutc(' ');
+	cursorShift(LEFT);
 }
 
 /*!	\brief	Returns 10^n value. */
@@ -541,13 +541,13 @@ void lcdFtos(float value, uint8_t n)
 		value = -value;
 	}
 
-	lcdItos((int32_t)value); // ���� ���� �������
+	lcdItos((int32_t)value);
 
 	if (n > 0u)
 	{
-		lcdPutc('.'); // ������
+		lcdPutc('.');
 
-		lcdNtos((uint32_t)(value * (float)lcdPow10(n)), n); // ���� ������� �������
+		lcdNtos((uint32_t)(value * (float)lcdPow10(n)), n);
 	}
 }
 
