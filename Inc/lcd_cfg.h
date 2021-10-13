@@ -36,7 +36,7 @@ Contact information :
 #include "main.h"
 
 //#define USE_LCD2004
-#define USE_I2C_BUS
+//#define USE_I2C_BUS
 
 //-------------------------------
 /* SET LCD<->MCU CONNECTIONS */
