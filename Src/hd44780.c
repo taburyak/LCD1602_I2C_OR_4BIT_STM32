@@ -14,23 +14,23 @@
 /*!	\brief	Macro-definitions. */
 #ifndef USE_I2C_BUS
 
-#define SET(x,n)						(HAL_GPIO_WritePin(x, n, GPIO_PIN_SET))
-#define CLR(x,n)						(HAL_GPIO_WritePin(x, n, GPIO_PIN_RESET))
-#define GET(x,n)						(HAL_GPIO_ReadPin(x, n))
+#define SET(x,n)		(HAL_GPIO_WritePin(x, n, GPIO_PIN_SET))
+#define CLR(x,n)		(HAL_GPIO_WritePin(x, n, GPIO_PIN_RESET))
+#define GET(x,n)		(HAL_GPIO_ReadPin(x, n))
 
-#define LCD_D7_MASK					0x80u
-#define LCD_D6_MASK					0x40u
-#define LCD_D5_MASK					0x20u
-#define LCD_D4_MASK					0x10u
-#define LCD_D3_MASK					0x08u
-#define LCD_D2_MASK					0x04u
-#define LCD_D1_MASK					0x02u
-#define LCD_D0_MASK					0x01u
+#define LCD_D7_MASK		0x80u
+#define LCD_D6_MASK		0x40u
+#define LCD_D5_MASK		0x20u
+#define LCD_D4_MASK		0x10u
+#define LCD_D3_MASK		0x08u
+#define LCD_D2_MASK		0x04u
+#define LCD_D1_MASK		0x02u
+#define LCD_D0_MASK		0x01u
 
 #endif
 
-#define ENABLE_CYCLE_TIME			1u	/* Minimal value ~ 1us */
-#define AC_UPDATE_TIME				1u	/* Minimal value ~ 4us */
+#define ENABLE_CYCLE_TIME	1u	/* Minimal value ~ 1us */
+#define AC_UPDATE_TIME		1u	/* Minimal value ~ 4us */
 
 #if (USE_PROGRESS_BAR)
 /*!	\brief	Progress bar definitions. */
