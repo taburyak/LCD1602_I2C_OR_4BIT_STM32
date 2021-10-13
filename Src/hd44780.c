@@ -1,53 +1,31 @@
-//------------------------------------------------------
+/*------------------------------------------------------*/
 /* File:       Library for HD44780 compatible displays  */
 /* Version:	   v3.00  						 			*/
 /* Author:     GrAnd/www.MakeSystem.net					*/
 /* 				https://stm32withoutfear.blogspot.com	*/
-/* Tested on:  AVR, STM32F10X, STM32F4XX			 	 	*/
+/* Tested on:  AVR, STM32F10X, STM32F4XX			 	*/
 /* License:	   GNU LGPLv2.1		 		 	 			*/
-//------------------------------------------------------
-/* Copyright (C)2014 GrAnd. All right reserved 			*/
-//------------------------------------------------------
-
-
-/*
-	This library is free software; you can redistribute it and/or
-	modify it under the terms of the GNU Lesser General Public
-	License as published by the Free Software Foundation; either
-	version 2.1 of the License, or (at your option) any later version.
-
-	This library is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-	Lesser General Public License for more details.
-
-	You should have received a copy of the GNU Lesser General Public
-	License along with this library; if not, write to the Free Software
-	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-
-Contact information :
-						mail@makesystem.net
-						http://makesystem.net/?page_id=2
-*/
+/*------------------------------------------------------*/
+/* Copyright (C)2021 And Hon All right reserved			*/
+/*------------------------------------------------------*/
 
 #include "hd44780.h"
 
 /*!	\brief	Macro-definitions. */
 #ifndef USE_I2C_BUS
 
-#define BIT(n)						(1u << (n))
-#define SET(x,n)           			((x) |= BIT(n))
-#define CLR(x,n)  		  			((x) &= ~BIT(n))
-#define GET(x,n)   		  			(((x) & BIT(n)) ? 1u : 0u)
+#define SET(x,n)						(HAL_GPIO_WritePin(x, n, GPIO_PIN_SET))
+#define CLR(x,n)						(HAL_GPIO_WritePin(x, n, GPIO_PIN_RESET))
+#define GET(x,n)						(HAL_GPIO_ReadPin(x, n))
 
-#define LCD_D7_MASK					GPIO_PIN_7 //0x80u
-#define LCD_D6_MASK					GPIO_PIN_6 //0x40u
-#define LCD_D5_MASK					GPIO_PIN_5 //0x20u
-#define LCD_D4_MASK					GPIO_PIN_4 //0x10u
-#define LCD_D3_MASK					GPIO_PIN_3 //0x08u
-#define LCD_D2_MASK					GPIO_PIN_2 //0x04u
-#define LCD_D1_MASK					GPIO_PIN_1 //0x02u
-#define LCD_D0_MASK					GPIO_PIN_0 //0x01u
+#define LCD_D7_MASK					0x80u
+#define LCD_D6_MASK					0x40u
+#define LCD_D5_MASK					0x20u
+#define LCD_D4_MASK					0x10u
+#define LCD_D3_MASK					0x08u
+#define LCD_D2_MASK					0x04u
+#define LCD_D1_MASK					0x02u
+#define LCD_D0_MASK					0x01u
 
 #endif
 

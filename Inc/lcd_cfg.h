@@ -1,33 +1,13 @@
-//------------------------------------------------------
+/*------------------------------------------------------*/
 /* File:       Library for HD44780 compatible displays  */
 /* Version:	   v3.00  						 			*/
 /* Author:     GrAnd/www.MakeSystem.net					*/
-/* 			   https://stm32withoutfear.blogspot.com	*/
+/* 				https://stm32withoutfear.blogspot.com	*/
 /* Tested on:  AVR, STM32F10X, STM32F4XX			 	*/
 /* License:	   GNU LGPLv2.1		 		 	 			*/
-//------------------------------------------------------
+/*------------------------------------------------------*/
 /* Copyright (C)2014 GrAnd. All right reserved 			*/
-//------------------------------------------------------
-
-/*
-	This library is free software; you can redistribute it and/or
-	modify it under the terms of the GNU Lesser General Public
-	License as published by the Free Software Foundation; either
-	version 2.1 of the License, or (at your option) any later version.
-
-	This library is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-	Lesser General Public License for more details.
-
-	You should have received a copy of the GNU Lesser General Public
-	License along with this library; if not, write to the Free Software
-	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-
-Contact information :
-						mail@makesystem.net
-						http://makesystem.net/?page_id=2
-*/
+/*------------------------------------------------------*/
 
 #ifndef LCD_CFG_H
 #define LCD_CFG_H
@@ -56,29 +36,16 @@ extern I2C_HandleTypeDef LCD_I2C_PORT;
 
 #else
 
-#define MASK2PIN(mask) ((mask&GPIO_PIN_0)?0:(mask&GPIO_PIN_1)?1:(mask&GPIO_PIN_2)?2:(mask&GPIO_PIN_3)?3: \
-						(mask&GPIO_PIN_4)?4:(mask&GPIO_PIN_5)?5:(mask&GPIO_PIN_6)?6:(mask&GPIO_PIN_7)?7: \
-						(mask&GPIO_PIN_8)?8:(mask&GPIO_PIN_9)?9:(mask&GPIO_PIN_10)?10:(mask&GPIO_PIN_11)?11: \
-						(mask&GPIO_PIN_12)?12:(mask&GPIO_PIN_13)?13:(mask&GPIO_PIN_14)?14:(mask&GPIO_PIN_15)?15:0)
-
-#define RS_PIN_NUMBER (MASK2PIN(LCD_RS_Pin))
-#define E_PIN_NUMBER (MASK2PIN(LCD_E_Pin))
-#define RW_PIN_NUMBER (MASK2PIN(LCD_RW_Pin))
-#define D7_PIN_NUMBER (MASK2PIN(LCD_D7_Pin))
-#define D6_PIN_NUMBER (MASK2PIN(LCD_D6_Pin))
-#define D5_PIN_NUMBER (MASK2PIN(LCD_D5_Pin))
-#define D4_PIN_NUMBER (MASK2PIN(LCD_D4_Pin))
-
 /* E - Starts data read/write. */
-#define LCD_E_OUT					LCD_E_GPIO_Port->ODR	/* Output register */
-#define LCD_E 	 					E_PIN_NUMBER			/* Pin number */
+#define LCD_E_OUT					(LCD_E_GPIO_Port)	/* Output register */
+#define LCD_E 	 					(LCD_E_Pin)			/* Pin number */
 
 /* RS - Selects registers.
  * 0:	Instruction register (for write)
  * 0:	Busy flag + address counter (for read)
  * 1:	Data register (for write and read) */
-#define LCD_RS_OUT					LCD_RS_GPIO_Port->ODR	/* Output register */
-#define LCD_RS 						RS_PIN_NUMBER			/* Pin number */
+#define LCD_RS_OUT					(LCD_RS_GPIO_Port)		/* Output register */
+#define LCD_RS 						(LCD_RS_Pin)			/* Pin number */
 
 /* R/W - Selects read or write.
  * 0:	Write
@@ -89,18 +56,18 @@ extern I2C_HandleTypeDef LCD_I2C_PORT;
 /* DB4 to DB7 - Four high order bidirectional tristate data bus pins.
  * Used for data transfer and receive between the MPU and the HD44780U.
  * DB7 can be used as a busy flag. */
-#define LCD_D7_OUT					LCD_D7_GPIO_Port->ODR	/* Output register */
-#define LCD_D7_IN					LCD_D7_GPIO_Port->IDR	/* Input register */
-#define LCD_D7 	 					D7_PIN_NUMBER			/* Pin number */
+#define LCD_D7_OUT					(LCD_D7_GPIO_Port)		/* Output register */
+#define LCD_D7_IN					(LCD_D7_GPIO_Port)		/* Input register */
+#define LCD_D7 	 					(LCD_D7_Pin)			/* Pin number */
 
-#define LCD_D6_OUT					LCD_D6_GPIO_Port->ODR	/* Output register */
-#define LCD_D6						D6_PIN_NUMBER			/* Pin number */
+#define LCD_D6_OUT					(LCD_D6_GPIO_Port)		/* Output register */
+#define LCD_D6						(LCD_D6_Pin)			/* Pin number */
 
-#define LCD_D5_OUT					LCD_D5_GPIO_Port->ODR	/* Output register */
-#define LCD_D5						D5_PIN_NUMBER			/* Pin number */
+#define LCD_D5_OUT					(LCD_D5_GPIO_Port)		/* Output register */
+#define LCD_D5						(LCD_D5_Pin)			/* Pin number */
 
-#define LCD_D4_OUT					LCD_D4_GPIO_Port->ODR	/* Output register */
-#define LCD_D4						D4_PIN_NUMBER			/* Pin number */
+#define LCD_D4_OUT					(LCD_D4_GPIO_Port)		/* Output register */
+#define LCD_D4						(LCD_D4_Pin)			/* Pin number */
 
 #endif
 //-------------------------------

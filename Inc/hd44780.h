@@ -1,34 +1,13 @@
-//------------------------------------------------------
+/*------------------------------------------------------*/
 /* File:       Library for HD44780 compatible displays  */
 /* Version:	   v3.00  						 			*/
 /* Author:     GrAnd/www.MakeSystem.net					*/
 /* 				https://stm32withoutfear.blogspot.com	*/
-/* Tested on:  AVR, STM32F10X, STM32F4XX			 	 	*/
+/* Tested on:  AVR, STM32F10X, STM32F4XX			 	*/
 /* License:	   GNU LGPLv2.1		 		 	 			*/
-//------------------------------------------------------
+/*------------------------------------------------------*/
 /* Copyright (C)2014 GrAnd. All right reserved 			*/
-//------------------------------------------------------
-
-
-/*
-	This library is free software; you can redistribute it and/or
-	modify it under the terms of the GNU Lesser General Public
-	License as published by the Free Software Foundation; either
-	version 2.1 of the License, or (at your option) any later version.
-
-	This library is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-	Lesser General Public License for more details.
-
-	You should have received a copy of the GNU Lesser General Public
-	License along with this library; if not, write to the Free Software
-	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-
-Contact information :
-						mail@makesystem.net
-						http://makesystem.net/?page_id=2
-*/
+/*------------------------------------------------------*/
 
 #ifndef HD44780_H
 #define HD44780_H
@@ -63,10 +42,10 @@ extern "C" {
 //-------------------------------
 // ENTRY MODE MACROS
 //-------------------------------
-#define ENTRY_MODE_DEC_NO_SHIFT			0x04u // ������ �����, ��� ����� ������ ������� DDRRAM ���'��
-#define ENTRY_MODE_DEC_WITH_SHIFT     	0x05u // ������ �����, � ������ ������ ������� DDRRAM ���'��
-#define ENTRY_MODE_INC_NO_SHIFT	      	0x06u // ���� �������, ��� ����� ������ ������� DDRRAM ���'��
-#define ENTRY_MODE_INC_WITH_SHIFT     	0x07u // ���� �������, � ������ ������ ������� DDRRAM ���'��
+#define ENTRY_MODE_DEC_NO_SHIFT			0x04u
+#define ENTRY_MODE_DEC_WITH_SHIFT     	0x05u
+#define ENTRY_MODE_INC_NO_SHIFT	      	0x06u
+#define ENTRY_MODE_INC_WITH_SHIFT     	0x07u
 
 //-------------------------------
 // VIEW_MODE MACROS
