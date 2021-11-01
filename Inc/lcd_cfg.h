@@ -76,7 +76,6 @@ extern I2C_HandleTypeDef LCD_I2C_PORT;
 #define DEFAULT_DISPLAY_CONFIG		DISPLAY_CONFIG_4bit_2L_5x8
 #define DEFAULT_ENTRY_MODE			ENTRY_MODE_INC_NO_SHIFT
 #define DEFAULT_VIEW_MODE			VIEW_MODE_DispOn_BlkOff_CrsOff
-#define USE_BUSY_FLAG				(0u)	/* 1 (true) or 0 (false) */
 
 //-------------------------------
 // SET MCU TIMINGS
@@ -118,17 +117,6 @@ extern I2C_HandleTypeDef LCD_I2C_PORT;
 //-------------------------------
 // LCDlib CALLBACKS
 //-------------------------------
-#if (USE_BUSY_FLAG)
-
-#define Set_D7_as_Input()	\
-	GPIOA->CRL &= 0xFFF0FFFFu;	\
-	GPIOA->CRL |= 0x00040000u;
-
-#define Set_D7_as_Outut()	\
-	GPIOA->CRL &= 0xFFF0FFFFu;	\
-	GPIOA->CRL |= 0x00030000u;
-
-#endif /* USE_BUSY_FLAG */
 
 void lcdGpioInit(void);
 #define setAllPinsAsOutputs()	lcdGpioInit()

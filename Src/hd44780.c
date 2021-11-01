@@ -62,35 +62,6 @@ static void lcd10usDelay(volatile uint32_t us);
 static void lcdConfig(uint8_t param);
 static uint32_t lcdPow10(uint8_t n);
 
-#if (USE_BUSY_FLAG)
-static void lcd_busy_delay(void);
-
-/*!	\brief	*/
-static void lcd_busy_delay(void)
-{
-	uint8_t BusyFlag;
-
-	Set_D7_as_Input(); /* Set D7 as input. */
-	/* When RS = 0 and R/W = 1, the busy flag is output to DB7. */
-	CLR(LCD_RS_OUT, LCD_RS);
-	SET(LCD_RW_OUT, LCD_RW);
-
-	do
-	{/* Note: two cycles are needed for the busy flag check. */
-		/* Read busy flag. */
-		lcdStrobe();
-		/* D7 is used as busy flag. */
-		BusyFlag = GET(LCD_D7_IN, LCD_D7);
-		/* Discard D3. */
-		lcdStrobe();
-		/* Verify the busy flag */
-	}while (BusyFlag);
-
-	CLR(LCD_RW_OUT, LCD_RW);
-	Set_D7_as_Outut(); /* Restore D7 as the output. */
-}
-#endif /* USE_BUSY_FLAG */
-
 #ifndef USE_I2C_BUS
 /*!	\brief	Creates delay multiples of 10us. */
 static void lcd10usDelay(volatile uint32_t us)
@@ -107,21 +78,12 @@ static void lcd10usDelay(volatile uint32_t us)
 /*!	\brief	Send data/commands to the display. */
 static void lcdWrite(uint8_t data)
 {/* Low level function. */
-#if (USE_BUSY_FLAG)
-	/* Write data/commands to LCD. */
-	CLR(LCD_RW_OUT, LCD_RW);
-#endif /* USE_BUSY_FLAG */
-
 	lcdHigh(data);
 	lcdStrobe();
 	lcdLow(data);
 	lcdStrobe();
 	/* The busy flag must be checked after the 4-bit data has been transferred twice. */
-#if (USE_BUSY_FLAG)
-	lcd_busy_delay();
-#else
 	lcd10usDelay(BUSY_CYCLE_TIME);
-#endif /* USE_BUSY_FLAG */
 }
 #endif
 
@@ -186,10 +148,6 @@ static void lcdConfig(uint8_t param)
 #else
 	/* Send commands to LCD. */
 	CLR(LCD_RS_OUT, LCD_RS);
-#if (USE_BUSY_FLAG)
-	/* Write data/commands to LCD. */
-	CLR(LCD_RW_OUT, LCD_RW);
-#endif /* USE_BUSY_FLAG */
 
 	lcdHigh(param);
 	lcdStrobe();		// Change 8-bit interface to 4-bit interface
@@ -223,11 +181,7 @@ void lcdClrScr(void)
 	/* Clear screen */
 	lcdWrite(0x01u);
 	/* Busy delay */
-#if (USE_BUSY_FLAG)
-	lcd_busy_delay();
-#else
 	lcd10usDelay(CLRSCR_CYCLE_TIME);
-#endif /* USE_BUSY_FLAG */
 #endif
 }
 
@@ -246,11 +200,7 @@ void lcdReturn(void)
 	/* Return home */
 	lcdWrite(0x02u);
 	/* Busy delay */
-#if (USE_BUSY_FLAG)
-	lcd_busy_delay();
-#else
 	lcd10usDelay(RETHOME_CYCLE_TIME);
-#endif /* USE_BUSY_FLAG */
 #endif
 }
 
