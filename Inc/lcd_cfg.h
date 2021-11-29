@@ -12,8 +12,7 @@
 #ifndef LCD_CFG_H
 #define LCD_CFG_H
 
-//#include "stm32f1xx.h"
-#include "main.h"
+#include "stm32_device.h"
 
 //#define USE_LCD2004
 //#define USE_I2C_BUS
@@ -33,6 +32,32 @@
 #define BACKLIGHT 			(1 << 3)
 
 extern I2C_HandleTypeDef LCD_I2C_PORT;
+
+extern uint8_t current_status_backlight;
+
+uint8_t SendInternalCallback(uint8_t lcd_addr, uint8_t data, uint8_t flags)
+{
+    HAL_StatusTypeDef res;
+    for(;;)
+    {
+        res = HAL_I2C_IsDeviceReady(&LCD_I2C_PORT, lcd_addr, 1, HAL_MAX_DELAY);
+        if(res == HAL_OK)
+            break;
+    }
+
+    uint8_t up = data & 0xF0;
+    uint8_t lo = (data << 4) & 0xF0;
+
+    uint8_t data_arr[4];
+    data_arr[0] = up|flags|current_status_backlight|PIN_EN;
+    data_arr[1] = up|flags|current_status_backlight;
+    data_arr[2] = lo|flags|current_status_backlight|PIN_EN;
+    data_arr[3] = lo|flags|current_status_backlight;
+
+    res = HAL_I2C_Master_Transmit(&LCD_I2C_PORT, lcd_addr, data_arr, sizeof(data_arr), HAL_MAX_DELAY);
+    HAL_Delay(BUSY_CYCLE_TIME);
+    return res;
+}
 
 #else
 
@@ -69,7 +94,8 @@ extern I2C_HandleTypeDef LCD_I2C_PORT;
 #define LCD_D4_OUT					(LCD_D4_GPIO_Port)		/* Output register */
 #define LCD_D4						(LCD_D4_Pin)			/* Pin number */
 
-#endif
+#endif /* USE_I2C_BUS */
+
 //-------------------------------
 // DEFAULT CONFIGURATIONS
 //-------------------------------
@@ -80,10 +106,10 @@ extern I2C_HandleTypeDef LCD_I2C_PORT;
 //-------------------------------
 // SET MCU TIMINGS
 //-------------------------------
-#define MCU_FREQ_VALUE				(HAL_RCC_GetHCLKFreq()/1000000U)	/* MHz. Minimal value = 1 MHz */
-#define BUSY_CYCLE_TIME				(5u)								/* x 10us. See datasheet for minimal value. */
-#define CLRSCR_CYCLE_TIME			(200u)								/* x 10us. See datasheet for minimal value. */
-#define RETHOME_CYCLE_TIME			(200u)								/* x 10us. See datasheet for minimal value. */
+#define MCU_FREQ_VALUE				(GET_MCU_FREQ()/1000000U)	/* MHz. Minimal value = 1 MHz */
+#define BUSY_CYCLE_TIME				(5u)						/* x 10us. See datasheet for minimal value. */
+#define CLRSCR_CYCLE_TIME			(200u)						/* x 10us. See datasheet for minimal value. */
+#define RETHOME_CYCLE_TIME			(200u)						/* x 10us. See datasheet for minimal value. */
 #define INIT_CYCLE_TIME				(400u)
 //-------------------------------
 // CONFIGURE LCD WITH 4 LINES

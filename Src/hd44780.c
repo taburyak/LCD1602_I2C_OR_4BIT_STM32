@@ -12,26 +12,6 @@
 #include "hd44780.h"
 
 /*!	\brief	Macro-definitions. */
-#ifndef USE_I2C_BUS
-
-#define SET(x,n)		(HAL_GPIO_WritePin(x, n, GPIO_PIN_SET))
-#define CLR(x,n)		(HAL_GPIO_WritePin(x, n, GPIO_PIN_RESET))
-#define GET(x,n)		(HAL_GPIO_ReadPin(x, n))
-
-#define LCD_D7_MASK		0x80u
-#define LCD_D6_MASK		0x40u
-#define LCD_D5_MASK		0x20u
-#define LCD_D4_MASK		0x10u
-#define LCD_D3_MASK		0x08u
-#define LCD_D2_MASK		0x04u
-#define LCD_D1_MASK		0x02u
-#define LCD_D0_MASK		0x01u
-
-#endif
-
-#define ENABLE_CYCLE_TIME	1u	/* Minimal value ~ 1us */
-#define AC_UPDATE_TIME		1u	/* Minimal value ~ 4us */
-
 #if (USE_PROGRESS_BAR)
 /*!	\brief	Progress bar definitions. */
 #define CGROM_PROGRESS_BAR_SIZE		6u
@@ -46,13 +26,35 @@ static void lcdInitBar(void);
 #endif
 
 #ifdef USE_I2C_BUS
+
 static uint8_t current_status_backlight = (0 << BACKLIGHT);
-#endif
+
+#else
+
+#define LCD_D7_MASK		0x80u
+#define LCD_D6_MASK		0x40u
+#define LCD_D5_MASK		0x20u
+#define LCD_D4_MASK		0x10u
+#define LCD_D3_MASK		0x08u
+#define LCD_D2_MASK		0x04u
+#define LCD_D1_MASK		0x02u
+#define LCD_D0_MASK		0x01u
+
+#define ENABLE_CYCLE_TIME	1u	/* Minimal value ~ 1us */
+#define AC_UPDATE_TIME		1u	/* Minimal value ~ 4us */
+
+#endif /* USE_I2C_BUS */
 
 /*!	\brief	Low-level functions. */
 #ifdef USE_I2C_BUS
-static HAL_StatusTypeDef sendInternal(uint8_t lcd_addr, uint8_t data, uint8_t flags);
+
+__attribute__((weak)) void LcdInitCallback(void) {}
+__attribute__((weak)) uint8_t SendInternalCallback(uint8_t lcd_addr, uint8_t data, uint8_t flags) { UNUSED(lcd_addr); UNUSED(data); UNUSED(flags); return 0; }
+
+static uint8_t sendInternal(uint8_t lcd_addr, uint8_t data, uint8_t flags);
+
 #else
+
 static void lcdWrite(uint8_t data);
 static void lcdStrobe(void);
 static void lcdHigh(uint8_t data);
@@ -88,28 +90,9 @@ static void lcdWrite(uint8_t data)
 #endif
 
 #ifdef USE_I2C_BUS
-static HAL_StatusTypeDef sendInternal(uint8_t lcd_addr, uint8_t data, uint8_t flags)
+static uint8_t sendInternal(uint8_t lcd_addr, uint8_t data, uint8_t flags)
 {
-    HAL_StatusTypeDef res;
-    for(;;)
-    {
-        res = HAL_I2C_IsDeviceReady(&LCD_I2C_PORT, lcd_addr, 1, HAL_MAX_DELAY);
-        if(res == HAL_OK)
-            break;
-    }
-
-    uint8_t up = data & 0xF0;
-    uint8_t lo = (data << 4) & 0xF0;
-
-    uint8_t data_arr[4];
-    data_arr[0] = up|flags|current_status_backlight|PIN_EN;
-    data_arr[1] = up|flags|current_status_backlight;
-    data_arr[2] = lo|flags|current_status_backlight|PIN_EN;
-    data_arr[3] = lo|flags|current_status_backlight;
-
-    res = HAL_I2C_Master_Transmit(&LCD_I2C_PORT, lcd_addr, data_arr, sizeof(data_arr), HAL_MAX_DELAY);
-    HAL_Delay(BUSY_CYCLE_TIME);
-    return res;
+	return SendInternalCallback(lcd_addr, data, flags);
 }
 #else
 
