@@ -61,38 +61,7 @@ uint8_t SendInternalCallback(uint8_t lcd_addr, uint8_t data, uint8_t flags)
 
 #else
 
-/* E - Starts data read/write. */
-#define LCD_E_OUT					(LCD_E_GPIO_Port)	/* Output register */
-#define LCD_E 	 					(LCD_E_Pin)			/* Pin number */
 
-/* RS - Selects registers.
- * 0:	Instruction register (for write)
- * 0:	Busy flag + address counter (for read)
- * 1:	Data register (for write and read) */
-#define LCD_RS_OUT					(LCD_RS_GPIO_Port)		/* Output register */
-#define LCD_RS 						(LCD_RS_Pin)			/* Pin number */
-
-/* R/W - Selects read or write.
- * 0:	Write
- * 1:	Read */
-#define LCD_RW_OUT					(LCD_RW_GPIO_Port)	/* Output register */
-#define LCD_RW						(LCD_RW_Pin)			/* Pin number */
-
-/* DB4 to DB7 - Four high order bidirectional tristate data bus pins.
- * Used for data transfer and receive between the MPU and the HD44780U.
- * DB7 can be used as a busy flag. */
-#define LCD_D7_OUT					(LCD_D7_GPIO_Port)		/* Output register */
-#define LCD_D7_IN					(LCD_D7_GPIO_Port)		/* Input register */
-#define LCD_D7 	 					(LCD_D7_Pin)			/* Pin number */
-
-#define LCD_D6_OUT					(LCD_D6_GPIO_Port)		/* Output register */
-#define LCD_D6						(LCD_D6_Pin)			/* Pin number */
-
-#define LCD_D5_OUT					(LCD_D5_GPIO_Port)		/* Output register */
-#define LCD_D5						(LCD_D5_Pin)			/* Pin number */
-
-#define LCD_D4_OUT					(LCD_D4_GPIO_Port)		/* Output register */
-#define LCD_D4						(LCD_D4_Pin)			/* Pin number */
 
 #endif /* USE_I2C_BUS */
 
@@ -139,17 +108,7 @@ uint8_t SendInternalCallback(uint8_t lcd_addr, uint8_t data, uint8_t flags)
 #define PROGRESS_BAR_HEIGHT			(5u)  			/* in pixel: 1(min), 2, 3, 4, 5, 6, 7, 8(max) */
 #define PROGRESS_BAR_WIDTH			(10u) 			/* Number of chars in lcd line:  1, 2, .. , 8, 16, 20 */
 
-#ifndef USE_I2C_BUS
-//-------------------------------
-// LCDlib CALLBACKS
-//-------------------------------
-
-void lcdGpioInit(void);
-#define setAllPinsAsOutputs()	lcdGpioInit()
-#endif
-
 #endif /* LCD_CFG_H */
-
 //-------------------------------
 /* THE END */
 //-------------------------------

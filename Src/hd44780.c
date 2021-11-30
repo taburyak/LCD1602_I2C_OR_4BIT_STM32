@@ -31,19 +31,24 @@ static uint8_t current_status_backlight = (0 << BACKLIGHT);
 
 #else
 
-#define LCD_D7_MASK		0x80u
-#define LCD_D6_MASK		0x40u
-#define LCD_D5_MASK		0x20u
-#define LCD_D4_MASK		0x10u
-#define LCD_D3_MASK		0x08u
-#define LCD_D2_MASK		0x04u
-#define LCD_D1_MASK		0x02u
-#define LCD_D0_MASK		0x01u
+#define DATA_7_MASK		0x80u
+#define DATA_6_MASK		0x40u
+#define DATA_5_MASK		0x20u
+#define DATA_4_MASK		0x10u
+#define DATA_3_MASK		0x08u
+#define DATA_2_MASK		0x04u
+#define DATA_1_MASK		0x02u
+#define DATA_0_MASK		0x01u
 
 #define ENABLE_CYCLE_TIME	1u	/* Minimal value ~ 1us */
-#define AC_UPDATE_TIME		1u	/* Minimal value ~ 4us */
+#define AC_UPDATE_TIME		4u	/* Minimal value ~ 4us */
 
 #endif /* USE_I2C_BUS */
+
+__attribute__((weak)) void InitPeriphCallback(void)
+{
+
+}
 
 /*!	\brief	Low-level functions. */
 #ifdef USE_I2C_BUS
@@ -99,27 +104,27 @@ static uint8_t sendInternal(uint8_t lcd_addr, uint8_t data, uint8_t flags)
 /*!	\brief	Initiate the transfer of data/commands to LCD. */
 static void lcdStrobe(void)
 {/* Low level function. */
-	SET(LCD_E_OUT, LCD_E);
+	SET(HD44780_E_OUT, HD44780_E);
 	lcd10usDelay(ENABLE_CYCLE_TIME);
-	CLR(LCD_E_OUT, LCD_E);	/* Enable strobe */
+	CLR(HD44780_E_OUT, HD44780_E);	/* Enable strobe */
 }
 
 /*!	\brief	Send the msb nibble of the data / command to LCD. */
 static void lcdHigh(uint8_t data)
 {/* Low level function. */
-	if(data & LCD_D7_MASK) SET(LCD_D7_OUT, LCD_D7); else CLR(LCD_D7_OUT, LCD_D7);
-	if(data & LCD_D6_MASK) SET(LCD_D6_OUT, LCD_D6); else CLR(LCD_D6_OUT, LCD_D6);
-	if(data & LCD_D5_MASK) SET(LCD_D5_OUT, LCD_D5); else CLR(LCD_D5_OUT, LCD_D5);
-	if(data & LCD_D4_MASK) SET(LCD_D4_OUT, LCD_D4); else CLR(LCD_D4_OUT, LCD_D4);
+	if(data & DATA_7_MASK) SET(HD44780_D7_OUT, HD44780_D7); else CLR(HD44780_D7_OUT, HD44780_D7);
+	if(data & DATA_6_MASK) SET(HD44780_D6_OUT, HD44780_D6); else CLR(HD44780_D6_OUT, HD44780_D6);
+	if(data & DATA_5_MASK) SET(HD44780_D5_OUT, HD44780_D5); else CLR(HD44780_D5_OUT, HD44780_D5);
+	if(data & DATA_4_MASK) SET(HD44780_D4_OUT, HD44780_D4); else CLR(HD44780_D4_OUT, HD44780_D4);
 }
 
 /*!	\brief	Send the lsb nibble of the data / command to LCD. */
 static void lcdLow(uint8_t data)
 {/* Low level function. */
-	if(data & LCD_D3_MASK) SET(LCD_D7_OUT, LCD_D7); else CLR(LCD_D7_OUT, LCD_D7);
-	if(data & LCD_D2_MASK) SET(LCD_D6_OUT, LCD_D6); else CLR(LCD_D6_OUT, LCD_D6);
-	if(data & LCD_D1_MASK) SET(LCD_D5_OUT, LCD_D5); else CLR(LCD_D5_OUT, LCD_D5);
-	if(data & LCD_D0_MASK) SET(LCD_D4_OUT, LCD_D4); else CLR(LCD_D4_OUT, LCD_D4);
+	if(data & DATA_3_MASK) SET(HD44780_D7_OUT, HD44780_D7); else CLR(HD44780_D7_OUT, HD44780_D7);
+	if(data & DATA_2_MASK) SET(HD44780_D6_OUT, HD44780_D6); else CLR(HD44780_D6_OUT, HD44780_D6);
+	if(data & DATA_1_MASK) SET(HD44780_D5_OUT, HD44780_D5); else CLR(HD44780_D5_OUT, HD44780_D5);
+	if(data & DATA_0_MASK) SET(HD44780_D4_OUT, HD44780_D4); else CLR(HD44780_D4_OUT, HD44780_D4);
 }
 #endif
 
@@ -130,7 +135,7 @@ static void lcdConfig(uint8_t param)
 	sendInternal(LCD_I2C_ADDRESS_8B, param, 0);
 #else
 	/* Send commands to LCD. */
-	CLR(LCD_RS_OUT, LCD_RS);
+	CLR(HD44780_RS_OUT, HD44780_RS);
 
 	lcdHigh(param);
 	lcdStrobe();		// Change 8-bit interface to 4-bit interface
@@ -160,7 +165,7 @@ void lcdClrScr(void)
 #ifdef USE_I2C_BUS
 	sendInternal(LCD_I2C_ADDRESS_8B, 0x01u, 0);
 #else
-	CLR(LCD_RS_OUT, LCD_RS);
+	CLR(HD44780_RS_OUT, HD44780_RS);
 	/* Clear screen */
 	lcdWrite(0x01u);
 	/* Busy delay */
@@ -179,7 +184,7 @@ void lcdReturn(void)
 #ifdef USE_I2C_BUS
 	sendInternal(LCD_I2C_ADDRESS_8B, 0x02u, 0);
 #else
-	CLR(LCD_RS_OUT, LCD_RS);
+	CLR(HD44780_RS_OUT, HD44780_RS);
 	/* Return home */
 	lcdWrite(0x02u);
 	/* Busy delay */
@@ -211,7 +216,7 @@ void lcdScroll(uint8_t direction)
 			break;
 	}
 #else
-	CLR(LCD_RS_OUT, LCD_RS);
+	CLR(HD44780_RS_OUT, HD44780_RS);
 	/* Scroll display */
 	switch (direction)
 	{
@@ -260,7 +265,7 @@ void cursorShift(uint8_t direction)
 	}
 
 #else
-	CLR(LCD_RS_OUT, LCD_RS);
+	CLR(HD44780_RS_OUT, HD44780_RS);
 	/* Shift cursor */
 	switch (direction)
 	{
@@ -302,7 +307,7 @@ void lcdGoto(uint8_t line, uint8_t address)
 			break;
 	}
 #else
-	CLR(LCD_RS_OUT, LCD_RS);
+	CLR(HD44780_RS_OUT, HD44780_RS);
 	/* Set DDRAM/CGRAM address. */
 	switch (line)
 	{
@@ -328,7 +333,7 @@ void lcdSetMode(uint8_t param)
 #ifdef USE_I2C_BUS
 	sendInternal(LCD_I2C_ADDRESS_8B, param, 0);
 #else
-	CLR(LCD_RS_OUT, LCD_RS);
+	CLR(HD44780_RS_OUT, HD44780_RS);
 	lcdWrite(param);
 #endif
 }
@@ -340,7 +345,7 @@ void lcdPutc(uint8_t data)
 #ifdef USE_I2C_BUS
 	sendInternal(LCD_I2C_ADDRESS_8B, data, PIN_RS);
 #else
-	SET(LCD_RS_OUT, LCD_RS);
+	SET(HD44780_RS_OUT, HD44780_RS);
 	lcdWrite(data);
 	/* Note:
 	 * After execution of the CGRAM/DDRAM data write/read instruction, the RAM address counter is incremented
@@ -627,9 +632,9 @@ void lcdClrBar(void)
  * 	\note	This library use the 4-bit interface. */
 void lcdInit(void)
 {
+	/* Peripheral initialization. */
+	InitPeriphCallback();
 #ifndef USE_I2C_BUS
-	/* GPIO initialization. */
-	setAllPinsAsOutputs();
 	/* LCD initialization. */
 	lcdWrite(0x30);
 	lcd10usDelay(INIT_CYCLE_TIME);
