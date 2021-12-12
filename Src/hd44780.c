@@ -8,7 +8,6 @@
 /*------------------------------------------------------*/
 /* Copyright (C)2021 And Hon All right reserved			*/
 /*------------------------------------------------------*/
-
 #include "hd44780.h"
 
 /*!	\brief	Macro-definitions. */
@@ -27,7 +26,7 @@ static void lcdInitBar(void);
 
 #ifdef USE_I2C_BUS
 
-static uint8_t current_status_backlight = (0 << BACKLIGHT);
+uint8_t current_status_backlight = (0 << BACKLIGHT);
 
 #else
 
@@ -97,7 +96,9 @@ static void lcdWrite(uint8_t data)
 #ifdef USE_I2C_BUS
 static uint8_t sendInternal(uint8_t lcd_addr, uint8_t data, uint8_t flags)
 {
-	return SendInternalCallback(lcd_addr, data, flags);
+	SendInternalCallbackHandler handler = SendInternalCallback;
+	return handler(lcd_addr, data, flags);
+	//	return SendInternalCallback(lcd_addr, data, flags);
 }
 #else
 

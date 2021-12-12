@@ -12,11 +12,60 @@
 #ifndef HD44780_H
 #define HD44780_H
 
-#include "lcd_cfg.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define USE_STM32_MCU
+//#define USE_I2C_BUS
+//#define USE_LCD2004
+
+#ifdef USE_STM32_MCU
+#include "stm32_device.h"
+#endif /* USE_STM32_MCU */
+
+//-------------------------------
+// DEFAULT CONFIGURATIONS
+//-------------------------------
+#define DEFAULT_DISPLAY_CONFIG		DISPLAY_CONFIG_4bit_2L_5x8
+#define DEFAULT_ENTRY_MODE			ENTRY_MODE_INC_NO_SHIFT
+#define DEFAULT_VIEW_MODE			VIEW_MODE_DispOn_BlkOff_CrsOff
+
+//-------------------------------
+// SET MCU TIMINGS
+//-------------------------------
+#define MCU_FREQ_VALUE				(GET_MCU_FREQ()/1000000U)	/* MHz. Minimal value = 1 MHz */
+#define BUSY_CYCLE_TIME				(5u)						/* x 10us. See datasheet for minimal value. */
+#define CLRSCR_CYCLE_TIME			(200u)						/* x 10us. See datasheet for minimal value. */
+#define RETHOME_CYCLE_TIME			(200u)						/* x 10us. See datasheet for minimal value. */
+#define INIT_CYCLE_TIME				(400u)
+//-------------------------------
+// CONFIGURE LCD WITH 4 LINES
+//-------------------------------
+#define START_ADDRESS_1st_LINE		(0x00u)
+#define START_ADDRESS_2nd_LINE		(0x40u)
+#ifdef USE_LCD2004
+#define START_ADDRESS_3rd_LINE		(0x14u)
+#define START_ADDRESS_4th_LINE		(0x54u)
+#else
+#define START_ADDRESS_3rd_LINE		(0x10u)
+#define START_ADDRESS_4th_LINE		(0x50u)
+#endif
+
+//-------------------------------
+// SET FORMATTED OUTPUT OPTIONS
+//-------------------------------
+#define USE_FORMATTED_OUTPUT	 	(1u)	/* 1 (true) or 0 (false) */
+#define TAB_SPACE					(4u)	/* 1 .. 255 */
+
+//-------------------------------
+// PROGRESS BAR OPTIONS
+//-------------------------------
+#define USE_PROGRESS_BAR			(0u)			/* 1 (true) or 0 (false) */
+#define USE_REGRESS_BAR				(1u)			/* 1 (true) or 0 (false) */
+#define PROGRESS_BAR_LINE			LCD_2nd_LINE	/* Select lcd line: 1, 2, 3, 4, ... */
+#define PROGRESS_BAR_HEIGHT			(5u)  			/* in pixel: 1(min), 2, 3, 4, 5, 6, 7, 8(max) */
+#define PROGRESS_BAR_WIDTH			(10u) 			/* Number of chars in lcd line:  1, 2, .. , 8, 16, 20 */
 
 //-------------------------------
 // CONSTANTS
@@ -56,6 +105,15 @@ extern "C" {
 #define VIEW_MODE_DispOn_BlkOff_CrsOff	0x0Cu /* Display On, Blink Off, Cursor Off */
 #define VIEW_MODE_DispOff_BlkOff_CrsOff	0x08u /* Display Off, Blink Off, Cursor Off */
 
+//-------------------------------
+// LCDlib Macros
+//-------------------------------
+#define SEND_INTERNAL() \
+	uint8_t SendInternalCallback(uint8_t lcd_addr, uint8_t data, uint8_t flags)
+
+typedef uint8_t(*SendInternalCallbackHandler)(uint8_t lcd_addr, uint8_t data, uint8_t flags);
+
+SEND_INTERNAL();
 //-------------------------------
 // LCDlib API
 //-------------------------------
