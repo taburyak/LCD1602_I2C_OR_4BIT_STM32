@@ -108,12 +108,14 @@ extern "C" {
 //-------------------------------
 // LCDlib Macros
 //-------------------------------
+#ifdef USE_I2C_BUS
 #define SEND_INTERNAL() \
 	uint8_t SendInternalCallback(uint8_t lcd_addr, uint8_t data, uint8_t flags)
 
 typedef uint8_t(*SendInternalCallbackHandler)(uint8_t lcd_addr, uint8_t data, uint8_t flags);
 
 SEND_INTERNAL();
+#endif /* USE_I2C_BUS */
 //-------------------------------
 // LCDlib API
 //-------------------------------
@@ -138,7 +140,7 @@ extern void lcdInit(void);
 #ifdef USE_I2C_BUS
 extern void lcdBackLightOn(void);
 extern void lcdBackLightOff(void);
-#endif
+#endif /* USE_I2C_BUS */
 
 #ifdef __cplusplus
 }
