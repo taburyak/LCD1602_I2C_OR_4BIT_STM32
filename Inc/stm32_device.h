@@ -27,12 +27,11 @@
 #define BACKLIGHT 			(1 << 3)
 
 extern I2C_HandleTypeDef LCD_I2C_PORT;
-
 extern uint8_t current_status_backlight;
 
-SEND_INTERNAL()
+uint8_t sendInternal_stm32(uint8_t lcd_addr, uint8_t data, uint8_t flags)
 {
-   HAL_StatusTypeDef res;
+	HAL_StatusTypeDef res;
 	for(;;)
 	{
 		res = HAL_I2C_IsDeviceReady(&LCD_I2C_PORT, lcd_addr, 1, HAL_MAX_DELAY);
@@ -53,6 +52,8 @@ SEND_INTERNAL()
 	HAL_Delay(1);
 	return res;
 }
+
+SendInternalCallbackHandler SendInternalCallback = sendInternal_stm32;
 
 #else
 

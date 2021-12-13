@@ -17,12 +17,10 @@ extern "C" {
 #endif
 
 #define USE_STM32_MCU
-//#define USE_I2C_BUS
+#define USE_I2C_BUS
 //#define USE_LCD2004
 
-#ifdef USE_STM32_MCU
-#include "stm32_device.h"
-#endif /* USE_STM32_MCU */
+#include "stdint.h"
 
 //-------------------------------
 // DEFAULT CONFIGURATIONS
@@ -109,12 +107,10 @@ extern "C" {
 // LCDlib Macros
 //-------------------------------
 #ifdef USE_I2C_BUS
-#define SEND_INTERNAL() \
-	uint8_t SendInternalCallback(uint8_t lcd_addr, uint8_t data, uint8_t flags)
-
 typedef uint8_t(*SendInternalCallbackHandler)(uint8_t lcd_addr, uint8_t data, uint8_t flags);
+typedef struct {
 
-SEND_INTERNAL();
+}lcdI2C_ConfigStruct;
 #endif /* USE_I2C_BUS */
 //-------------------------------
 // LCDlib API

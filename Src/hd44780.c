@@ -9,6 +9,9 @@
 /* Copyright (C)2021 And Hon All right reserved			*/
 /*------------------------------------------------------*/
 #include "hd44780.h"
+#ifdef USE_STM32_MCU
+#include "stm32_device.h"
+#endif /* USE_STM32_MCU */
 
 /*!	\brief	Macro-definitions. */
 #if (USE_PROGRESS_BAR)
@@ -44,16 +47,13 @@ uint8_t current_status_backlight = (0 << BACKLIGHT);
 
 #endif /* USE_I2C_BUS */
 
-__attribute__((weak)) void InitPeriphCallback(void)
-{
-
-}
+__attribute__((weak)) void InitPeriphCallback(void){}
 
 /*!	\brief	Low-level functions. */
 #ifdef USE_I2C_BUS
 
-__attribute__((weak)) void LcdInitCallback(void) {}
-__attribute__((weak)) uint8_t SendInternalCallback(uint8_t lcd_addr, uint8_t data, uint8_t flags) { UNUSED(lcd_addr); UNUSED(data); UNUSED(flags); return 0; }
+//__attribute__((weak)) void LcdInitCallback(void) {}
+//__attribute__((weak)) uint8_t SendInternalCallback(uint8_t lcd_addr, uint8_t data, uint8_t flags) { UNUSED(lcd_addr); UNUSED(data); UNUSED(flags); return 0; }
 
 static uint8_t sendInternal(uint8_t lcd_addr, uint8_t data, uint8_t flags);
 
@@ -96,9 +96,7 @@ static void lcdWrite(uint8_t data)
 #ifdef USE_I2C_BUS
 static uint8_t sendInternal(uint8_t lcd_addr, uint8_t data, uint8_t flags)
 {
-	SendInternalCallbackHandler handler = SendInternalCallback;
-	return handler(lcd_addr, data, flags);
-	//	return SendInternalCallback(lcd_addr, data, flags);
+	return SendInternalCallback(lcd_addr, data, flags);
 }
 #else
 
