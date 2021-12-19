@@ -27,14 +27,23 @@
 #define BACKLIGHT 			(1 << 3)
 
 extern I2C_HandleTypeDef LCD_I2C_PORT;
-extern uint8_t current_status_backlight;
 
-uint8_t sendInternal_stm32(uint8_t lcd_addr, uint8_t data, uint8_t flags)
+uint8_t sendInternal_stm32(uint8_t data, uint8_t flags);
+
+lcdI2C_ConfigStruct lcdConfig = {
+		.SendData = sendInternal_stm32,
+		.backlight = (0 << BACKLIGHT),
+		.rs_pin = PIN_RS,
+		.en_pin = PIN_EN,
+		.i2c_address = LCD_I2C_ADDRESS_8B
+};
+
+uint8_t sendInternal_stm32(uint8_t data, uint8_t flags)
 {
 	HAL_StatusTypeDef res;
 	for(;;)
 	{
-		res = HAL_I2C_IsDeviceReady(&LCD_I2C_PORT, lcd_addr, 1, HAL_MAX_DELAY);
+		res = HAL_I2C_IsDeviceReady(&LCD_I2C_PORT, lcdConfig.i2c_address, 1, HAL_MAX_DELAY);
 		if(res == HAL_OK)
 			break;
 	}
@@ -43,17 +52,15 @@ uint8_t sendInternal_stm32(uint8_t lcd_addr, uint8_t data, uint8_t flags)
 	uint8_t lo = (data << 4) & 0xF0;
 
 	uint8_t data_arr[4];
-	data_arr[0] = up|flags|current_status_backlight|PIN_EN;
-	data_arr[1] = up|flags|current_status_backlight;
-	data_arr[2] = lo|flags|current_status_backlight|PIN_EN;
-	data_arr[3] = lo|flags|current_status_backlight;
+	data_arr[0] = up|flags|lcdConfig.backlight|lcdConfig.en_pin;
+	data_arr[1] = up|flags|lcdConfig.backlight;
+	data_arr[2] = lo|flags|lcdConfig.backlight|lcdConfig.en_pin;
+	data_arr[3] = lo|flags|lcdConfig.backlight;
 
-	res = HAL_I2C_Master_Transmit(&LCD_I2C_PORT, lcd_addr, data_arr, sizeof(data_arr), HAL_MAX_DELAY);
+	res = HAL_I2C_Master_Transmit(&LCD_I2C_PORT, lcdConfig.i2c_address, data_arr, sizeof(data_arr), HAL_MAX_DELAY);
 	HAL_Delay(1);
 	return res;
 }
-
-SendInternalCallbackHandler SendInternalCallback = sendInternal_stm32;
 
 #else
 

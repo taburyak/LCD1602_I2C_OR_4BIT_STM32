@@ -16,8 +16,7 @@
 extern "C" {
 #endif
 
-#define USE_STM32_MCU
-#define USE_I2C_BUS
+//#define USE_I2C_BUS
 //#define USE_LCD2004
 
 #include "stdint.h"
@@ -107,10 +106,19 @@ extern "C" {
 // LCDlib Macros
 //-------------------------------
 #ifdef USE_I2C_BUS
-typedef uint8_t(*SendInternalCallbackHandler)(uint8_t lcd_addr, uint8_t data, uint8_t flags);
-typedef struct {
 
+typedef uint8_t(*SendInternalCallbackHandler)(uint8_t data, uint8_t flags);
+typedef void(*InitPeriphCallbackHandler)(void);
+
+typedef struct {
+	uint8_t en_pin;
+	uint8_t rs_pin;
+	uint8_t backlight;
+	uint8_t i2c_address;
+	SendInternalCallbackHandler SendData;
+	InitPeriphCallbackHandler InitPeriph;
 }lcdI2C_ConfigStruct;
+
 #endif /* USE_I2C_BUS */
 //-------------------------------
 // LCDlib API
@@ -134,6 +142,7 @@ extern void lcdClrBar(void);
 extern void lcdInit(void);
 
 #ifdef USE_I2C_BUS
+extern void lcdInit(lcdI2C_ConfigStruct* config);
 extern void lcdBackLightOn(void);
 extern void lcdBackLightOff(void);
 #endif /* USE_I2C_BUS */

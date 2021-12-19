@@ -9,10 +9,7 @@
 /* Copyright (C)2021 And Hon All right reserved			*/
 /*------------------------------------------------------*/
 #include "hd44780.h"
-#ifdef USE_STM32_MCU
 #include "stm32_device.h"
-#endif /* USE_STM32_MCU */
-
 /*!	\brief	Macro-definitions. */
 #if (USE_PROGRESS_BAR)
 /*!	\brief	Progress bar definitions. */
@@ -28,9 +25,8 @@ static void lcdInitBar(void);
 #endif
 
 #ifdef USE_I2C_BUS
-
-uint8_t current_status_backlight = (0 << BACKLIGHT);
-
+static lcdI2C_ConfigStruct* i2cConfig;
+static uint8_t sendInternal(uint8_t data, uint8_t flags);
 #else
 
 #define DATA_7_MASK		0x80u
@@ -45,30 +41,25 @@ uint8_t current_status_backlight = (0 << BACKLIGHT);
 #define ENABLE_CYCLE_TIME	1u	/* Minimal value ~ 1us */
 #define AC_UPDATE_TIME		4u	/* Minimal value ~ 4us */
 
-#endif /* USE_I2C_BUS */
-
-__attribute__((weak)) void InitPeriphCallback(void){}
-
-/*!	\brief	Low-level functions. */
-#ifdef USE_I2C_BUS
-
-//__attribute__((weak)) void LcdInitCallback(void) {}
-//__attribute__((weak)) uint8_t SendInternalCallback(uint8_t lcd_addr, uint8_t data, uint8_t flags) { UNUSED(lcd_addr); UNUSED(data); UNUSED(flags); return 0; }
-
-static uint8_t sendInternal(uint8_t lcd_addr, uint8_t data, uint8_t flags);
-
-#else
-
 static void lcdWrite(uint8_t data);
 static void lcdStrobe(void);
 static void lcdHigh(uint8_t data);
 static void lcdLow(uint8_t data);
 static void lcd10usDelay(volatile uint32_t us);
-#endif
+
+#endif /* USE_I2C_BUS */
+
+/*!	\brief	Low-level functions. */
 static void lcdConfig(uint8_t param);
 static uint32_t lcdPow10(uint8_t n);
 
-#ifndef USE_I2C_BUS
+#ifdef USE_I2C_BUS
+static uint8_t sendInternal(uint8_t data, uint8_t flags)
+{
+	return i2cConfig->SendData(data, flags);
+}
+#else
+
 /*!	\brief	Creates delay multiples of 10us. */
 static void lcd10usDelay(volatile uint32_t us)
 {
@@ -91,14 +82,6 @@ static void lcdWrite(uint8_t data)
 	/* The busy flag must be checked after the 4-bit data has been transferred twice. */
 	lcd10usDelay(BUSY_CYCLE_TIME);
 }
-#endif
-
-#ifdef USE_I2C_BUS
-static uint8_t sendInternal(uint8_t lcd_addr, uint8_t data, uint8_t flags)
-{
-	return SendInternalCallback(lcd_addr, data, flags);
-}
-#else
 
 /*!	\brief	Initiate the transfer of data/commands to LCD. */
 static void lcdStrobe(void)
@@ -131,7 +114,7 @@ static void lcdLow(uint8_t data)
 static void lcdConfig(uint8_t param)
 {/* Low level function. */
 #ifdef USE_I2C_BUS
-	sendInternal(LCD_I2C_ADDRESS_8B, param, 0);
+	sendInternal(param, 0);
 #else
 	/* Send commands to LCD. */
 	CLR(HD44780_RS_OUT, HD44780_RS);
@@ -162,7 +145,7 @@ void lcdClrScr(void)
 {
 	/* Send a command to LCD. */
 #ifdef USE_I2C_BUS
-	sendInternal(LCD_I2C_ADDRESS_8B, 0x01u, 0);
+	sendInternal(0x01u, 0);
 #else
 	CLR(HD44780_RS_OUT, HD44780_RS);
 	/* Clear screen */
@@ -181,7 +164,7 @@ void lcdReturn(void)
 {
 	/* Send a command to LCD. */
 #ifdef USE_I2C_BUS
-	sendInternal(LCD_I2C_ADDRESS_8B, 0x02u, 0);
+	sendInternal(0x02u, 0);
 #else
 	CLR(HD44780_RS_OUT, HD44780_RS);
 	/* Return home */
@@ -202,12 +185,12 @@ void lcdScroll(uint8_t direction)
 	{
 	/* To left */
 		case LEFT  :
-			sendInternal(LCD_I2C_ADDRESS_8B, 0x18u, 0);
+			sendInternal(0x18u, 0);
 			break;
 
 		/* To right */
 		case RIGHT :
-			sendInternal(LCD_I2C_ADDRESS_8B, 0x1Cu, 0);
+			sendInternal(0x1Cu, 0);
 			break;
 
 		default:
@@ -250,12 +233,12 @@ void cursorShift(uint8_t direction)
 	{
 		/* To left */
 		case LEFT  :
-			sendInternal(LCD_I2C_ADDRESS_8B, 0x10u, 0);
+			sendInternal(0x10u, 0);
 			break;
 
 		/* To right */
 		case RIGHT :
-			sendInternal(LCD_I2C_ADDRESS_8B, 0x14u, 0);
+			sendInternal(0x14u, 0);
 			break;
 
 		default:
@@ -293,13 +276,13 @@ void lcdGoto(uint8_t line, uint8_t address)
 	switch (line)
 	{
 		/* Set DDRAM address. */
-		case LCD_1st_LINE: sendInternal(LCD_I2C_ADDRESS_8B, 0x80u | START_ADDRESS_1st_LINE | address, 0); break;
-		case LCD_2nd_LINE: sendInternal(LCD_I2C_ADDRESS_8B, 0x80u | START_ADDRESS_2nd_LINE | address, 0); break;
-		case LCD_3rd_LINE: sendInternal(LCD_I2C_ADDRESS_8B, 0x80u | START_ADDRESS_3rd_LINE | address, 0); break;
-		case LCD_4th_LINE: sendInternal(LCD_I2C_ADDRESS_8B, 0x80u | START_ADDRESS_4th_LINE | address, 0); break;
+		case LCD_1st_LINE: sendInternal(0x80u | START_ADDRESS_1st_LINE | address, 0); break;
+		case LCD_2nd_LINE: sendInternal(0x80u | START_ADDRESS_2nd_LINE | address, 0); break;
+		case LCD_3rd_LINE: sendInternal(0x80u | START_ADDRESS_3rd_LINE | address, 0); break;
+		case LCD_4th_LINE: sendInternal(0x80u | START_ADDRESS_4th_LINE | address, 0); break;
 
 		/* Set CGRAM address. */
-		case CGRAM : sendInternal(LCD_I2C_ADDRESS_8B, 0x40u | address, 0); break;
+		case CGRAM : sendInternal(0x40u | address, 0); break;
 
 		default:
 			/* Ignore this command */
@@ -330,7 +313,7 @@ void lcdSetMode(uint8_t param)
 {
 	/* Send a command to LCD. */
 #ifdef USE_I2C_BUS
-	sendInternal(LCD_I2C_ADDRESS_8B, param, 0);
+	sendInternal(param, 0);
 #else
 	CLR(HD44780_RS_OUT, HD44780_RS);
 	lcdWrite(param);
@@ -342,7 +325,7 @@ void lcdPutc(uint8_t data)
 {
 	/* Send data to LCD. */
 #ifdef USE_I2C_BUS
-	sendInternal(LCD_I2C_ADDRESS_8B, data, PIN_RS);
+	sendInternal(data, i2cConfig->rs_pin);
 #else
 	SET(HD44780_RS_OUT, HD44780_RS);
 	lcdWrite(data);
@@ -626,14 +609,49 @@ void lcdClrBar(void)
 	lcdGoto(LCD_1st_LINE, 0u);
 }
 #endif
+/*!	\brief	Initialize the LCD.
+ * 	\note	This library use the I2C interface. */
+#ifdef USE_I2C_BUS
+void lcdInit(lcdI2C_ConfigStruct* config)
+{
+	i2cConfig = config;
+#ifdef USE_LCD2004
+	lcdWrite(0x03);
+	HAL_Delay(4);
+	lcdWrite(0x03);
+	HAL_Delay(100);
+	lcdWrite(0x03);
+	HAL_Delay(1);
+	lcdWrite(0x02);
+	HAL_Delay(1);
+#endif /* USE_LCD2004 */
+	lcdConfig(DEFAULT_DISPLAY_CONFIG);
+	lcdSetMode(DEFAULT_VIEW_MODE);
+	lcdSetMode(DEFAULT_ENTRY_MODE);
+	lcdClrScr();
+	lcdReturn();
+	#if (USE_PROGRESS_BAR)
+		lcdInitBar();
+	#endif
+}
 
+void lcdBackLightOn(void)
+{
+	i2cConfig->backlight = (1 << 3);
+	sendInternal(0x0Fu, 0);
+}
+
+void lcdBackLightOff(void)
+{
+	i2cConfig->backlight = (0 << 3);
+	sendInternal(0x0Fu, 0);
+}
+#else /* USE_I2C_BUS */
 /*!	\brief	Initialize the LCD.
  * 	\note	This library use the 4-bit interface. */
 void lcdInit(void)
 {
 	/* Peripheral initialization. */
-	InitPeriphCallback();
-#ifndef USE_I2C_BUS
 	/* LCD initialization. */
 	lcdWrite(0x30);
 	lcd10usDelay(INIT_CYCLE_TIME);
@@ -649,57 +667,16 @@ void lcdInit(void)
 	lcdWrite(0x02);
 	HAL_Delay(1);
 #endif
-#else
-#ifdef USE_LCD2004
-	lcdConfig(0x03);
-	HAL_Delay(4);
-	lcdConfig(0x03);
-	HAL_Delay(100);
-	lcdConfig(0x03);
-	HAL_Delay(1);
-	lcdConfig(0x02);
-	HAL_Delay(1);
-#endif
-#endif
 	lcdConfig(DEFAULT_DISPLAY_CONFIG);
 	lcdSetMode(DEFAULT_VIEW_MODE);
 	lcdSetMode(DEFAULT_ENTRY_MODE);
 	lcdClrScr();
 	lcdReturn();
-	#if (USE_PROGRESS_BAR)
+#if (USE_PROGRESS_BAR)
 		lcdInitBar();
-	#endif
-}
-
-#ifdef USE_I2C_BUS
-void lcdBackLightOn(void)
-{
-	current_status_backlight = (1 << 3);
-	sendInternal(LCD_I2C_ADDRESS_8B, 0x0Fu, 0);
-}
-
-void lcdBackLightOff(void)
-{
-	current_status_backlight = (0 << 3);
-	sendInternal(LCD_I2C_ADDRESS_8B, 0x0Fu, 0);
-}
-#else
-void lcdGpioInit(void)
-{
-	/*
-	 GPIO_InitTypeDef GPIO_InitStruct;
-
-	 __HAL_RCC_GPIOC_CLK_ENABLE();
-
-	 GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
-  	 GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  	 GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  	 HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-  	 HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7, GPIO_PIN_RESET);
-	 */
-}
 #endif
+}
+#endif /* USE_I2C_BUS */
 //-------------------------------
 /* END OF FILE */
 //-------------------------------
