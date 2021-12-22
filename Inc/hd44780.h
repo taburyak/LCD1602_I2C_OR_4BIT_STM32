@@ -20,6 +20,7 @@ extern "C" {
 //#define USE_LCD2004
 
 #include "stdint.h"
+#include "stdbool.h"
 
 //-------------------------------
 // DEFAULT CONFIGURATIONS
@@ -31,7 +32,6 @@ extern "C" {
 //-------------------------------
 // SET MCU TIMINGS
 //-------------------------------
-#define MCU_FREQ_VALUE				(GET_MCU_FREQ()/1000000U)	/* MHz. Minimal value = 1 MHz */
 #define BUSY_CYCLE_TIME				(5u)						/* x 10us. See datasheet for minimal value. */
 #define CLRSCR_CYCLE_TIME			(200u)						/* x 10us. See datasheet for minimal value. */
 #define RETHOME_CYCLE_TIME			(200u)						/* x 10us. See datasheet for minimal value. */
@@ -58,7 +58,7 @@ extern "C" {
 //-------------------------------
 // PROGRESS BAR OPTIONS
 //-------------------------------
-#define USE_PROGRESS_BAR			(0u)			/* 1 (true) or 0 (false) */
+#define USE_PROGRESS_BAR			(1u)			/* 1 (true) or 0 (false) */
 #define USE_REGRESS_BAR				(1u)			/* 1 (true) or 0 (false) */
 #define PROGRESS_BAR_LINE			LCD_2nd_LINE	/* Select lcd line: 1, 2, 3, 4, ... */
 #define PROGRESS_BAR_HEIGHT			(5u)  			/* in pixel: 1(min), 2, 3, 4, 5, 6, 7, 8(max) */
@@ -103,26 +103,44 @@ extern "C" {
 #define VIEW_MODE_DispOff_BlkOff_CrsOff	0x08u /* Display Off, Blink Off, Cursor Off */
 
 //-------------------------------
-// LCDlib Macros
+// LCDlib API
 //-------------------------------
+typedef void(*InitPeriph)(void);
+
 #ifdef USE_I2C_BUS
 
-typedef uint8_t(*SendInternalCallbackHandler)(uint8_t data, uint8_t flags);
-typedef void(*InitPeriphCallbackHandler)(void);
+typedef uint8_t(*SendInternal)(uint8_t data, uint8_t flags);
 
 typedef struct {
 	uint8_t en_pin;
 	uint8_t rs_pin;
-	uint8_t backlight;
+	uint8_t bl_pin;
 	uint8_t i2c_address;
-	SendInternalCallbackHandler SendData;
-	InitPeriphCallbackHandler InitPeriph;
+	SendInternal SendData;
+	InitPeriph InitPeriph;
 }lcdI2C_ConfigStruct;
 
+extern void lcdBackLightOn(void);
+extern void lcdBackLightOff(void);
+
+#else
+
+typedef void(*WritePinState)(bool state);
+
+typedef struct {
+	WritePinState en_pin;
+	WritePinState rs_pin;
+	WritePinState d7_pin;
+	WritePinState d6_pin;
+	WritePinState d5_pin;
+	WritePinState d4_pin;
+	uint32_t mcuFreq;
+	InitPeriph InitPeriph;
+}fourBit_ConfigStruct;
+
 #endif /* USE_I2C_BUS */
-//-------------------------------
-// LCDlib API
-//-------------------------------
+
+extern void lcdInit(void* config);
 extern void lcdClrScr(void);
 extern void lcdReturn(void);
 extern void lcdSetMode(uint8_t param);
@@ -139,13 +157,6 @@ extern void lcdFtos(float value, uint8_t n);
 extern void lcdNtos(uint32_t value, uint8_t n);
 extern void lcdDrawBar(uint8_t data);
 extern void lcdClrBar(void);
-extern void lcdInit(void);
-
-#ifdef USE_I2C_BUS
-extern void lcdInit(lcdI2C_ConfigStruct* config);
-extern void lcdBackLightOn(void);
-extern void lcdBackLightOff(void);
-#endif /* USE_I2C_BUS */
 
 #ifdef __cplusplus
 }

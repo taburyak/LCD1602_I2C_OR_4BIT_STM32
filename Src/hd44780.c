@@ -9,7 +9,7 @@
 /* Copyright (C)2021 And Hon All right reserved			*/
 /*------------------------------------------------------*/
 #include "hd44780.h"
-#include "stm32_device.h"
+
 /*!	\brief	Macro-definitions. */
 #if (USE_PROGRESS_BAR)
 /*!	\brief	Progress bar definitions. */
@@ -38,8 +38,27 @@ static uint8_t sendInternal(uint8_t data, uint8_t flags);
 #define DATA_1_MASK		0x02u
 #define DATA_0_MASK		0x01u
 
+#define HIGH	1u
+#define LOW		0u
+
 #define ENABLE_CYCLE_TIME	1u	/* Minimal value ~ 1us */
 #define AC_UPDATE_TIME		4u	/* Minimal value ~ 4us */
+
+static fourBit_ConfigStruct* fourBitConfig;
+
+#define SET_EN()	(fourBitConfig->en_pin(HIGH))
+#define CLR_EN()	(fourBitConfig->en_pin(LOW))
+#define SET_RS()	(fourBitConfig->rs_pin(HIGH))
+#define CLR_RS()	(fourBitConfig->rs_pin(LOW))
+#define SET_D7()	(fourBitConfig->d7_pin(HIGH))
+#define CLR_D7()	(fourBitConfig->d7_pin(LOW))
+#define SET_D6()	(fourBitConfig->d6_pin(HIGH))
+#define CLR_D6()	(fourBitConfig->d6_pin(LOW))
+#define SET_D5()	(fourBitConfig->d5_pin(HIGH))
+#define CLR_D5()	(fourBitConfig->d5_pin(LOW))
+#define SET_D4()	(fourBitConfig->d4_pin(HIGH))
+#define CLR_D4()	(fourBitConfig->d4_pin(LOW))
+#define MCU_FREQ_VALUE (fourBitConfig->mcuFreq / 1000000U)
 
 static void lcdWrite(uint8_t data);
 static void lcdStrobe(void);
@@ -63,7 +82,7 @@ static uint8_t sendInternal(uint8_t data, uint8_t flags)
 /*!	\brief	Creates delay multiples of 10us. */
 static void lcd10usDelay(volatile uint32_t us)
 {
-	/* �onversion to us */
+	/* Conversion to us */
 	us *= MCU_FREQ_VALUE;
 	/* Wait */
 	while (us > 0u)
@@ -86,38 +105,39 @@ static void lcdWrite(uint8_t data)
 /*!	\brief	Initiate the transfer of data/commands to LCD. */
 static void lcdStrobe(void)
 {/* Low level function. */
-	SET(HD44780_E_OUT, HD44780_E);
+	SET_EN();
 	lcd10usDelay(ENABLE_CYCLE_TIME);
-	CLR(HD44780_E_OUT, HD44780_E);	/* Enable strobe */
+	CLR_EN();
 }
 
 /*!	\brief	Send the msb nibble of the data / command to LCD. */
 static void lcdHigh(uint8_t data)
 {/* Low level function. */
-	if(data & DATA_7_MASK) SET(HD44780_D7_OUT, HD44780_D7); else CLR(HD44780_D7_OUT, HD44780_D7);
-	if(data & DATA_6_MASK) SET(HD44780_D6_OUT, HD44780_D6); else CLR(HD44780_D6_OUT, HD44780_D6);
-	if(data & DATA_5_MASK) SET(HD44780_D5_OUT, HD44780_D5); else CLR(HD44780_D5_OUT, HD44780_D5);
-	if(data & DATA_4_MASK) SET(HD44780_D4_OUT, HD44780_D4); else CLR(HD44780_D4_OUT, HD44780_D4);
+	if(data & DATA_7_MASK) SET_D7(); else CLR_D7();
+	if(data & DATA_6_MASK) SET_D6(); else CLR_D6();
+	if(data & DATA_5_MASK) SET_D5(); else CLR_D5();
+	if(data & DATA_4_MASK) SET_D4(); else CLR_D4();
 }
 
 /*!	\brief	Send the lsb nibble of the data / command to LCD. */
 static void lcdLow(uint8_t data)
 {/* Low level function. */
-	if(data & DATA_3_MASK) SET(HD44780_D7_OUT, HD44780_D7); else CLR(HD44780_D7_OUT, HD44780_D7);
-	if(data & DATA_2_MASK) SET(HD44780_D6_OUT, HD44780_D6); else CLR(HD44780_D6_OUT, HD44780_D6);
-	if(data & DATA_1_MASK) SET(HD44780_D5_OUT, HD44780_D5); else CLR(HD44780_D5_OUT, HD44780_D5);
-	if(data & DATA_0_MASK) SET(HD44780_D4_OUT, HD44780_D4); else CLR(HD44780_D4_OUT, HD44780_D4);
+	if(data & DATA_3_MASK) SET_D7(); else CLR_D7();
+	if(data & DATA_2_MASK) SET_D6(); else CLR_D6();
+	if(data & DATA_1_MASK) SET_D5(); else CLR_D5();
+	if(data & DATA_0_MASK) SET_D4(); else CLR_D4();
 }
 #endif
 
-/*!	\brief	Initializing by instruction. 4-bit interface initialization. */
+/*!	\brief	Initializing by instruction. 4-bit or i2c interface initialization. */
 static void lcdConfig(uint8_t param)
-{/* Low level function. */
+{
+/* Low level function. */
 #ifdef USE_I2C_BUS
 	sendInternal(param, 0);
 #else
 	/* Send commands to LCD. */
-	CLR(HD44780_RS_OUT, HD44780_RS);
+	CLR_RS();
 
 	lcdHigh(param);
 	lcdStrobe();		// Change 8-bit interface to 4-bit interface
@@ -147,7 +167,7 @@ void lcdClrScr(void)
 #ifdef USE_I2C_BUS
 	sendInternal(0x01u, 0);
 #else
-	CLR(HD44780_RS_OUT, HD44780_RS);
+	CLR_RS();
 	/* Clear screen */
 	lcdWrite(0x01u);
 	/* Busy delay */
@@ -166,7 +186,7 @@ void lcdReturn(void)
 #ifdef USE_I2C_BUS
 	sendInternal(0x02u, 0);
 #else
-	CLR(HD44780_RS_OUT, HD44780_RS);
+	CLR_RS();
 	/* Return home */
 	lcdWrite(0x02u);
 	/* Busy delay */
@@ -198,7 +218,7 @@ void lcdScroll(uint8_t direction)
 			break;
 	}
 #else
-	CLR(HD44780_RS_OUT, HD44780_RS);
+	CLR_RS();
 	/* Scroll display */
 	switch (direction)
 	{
@@ -247,7 +267,7 @@ void cursorShift(uint8_t direction)
 	}
 
 #else
-	CLR(HD44780_RS_OUT, HD44780_RS);
+	CLR_RS();
 	/* Shift cursor */
 	switch (direction)
 	{
@@ -289,7 +309,7 @@ void lcdGoto(uint8_t line, uint8_t address)
 			break;
 	}
 #else
-	CLR(HD44780_RS_OUT, HD44780_RS);
+	CLR_RS();
 	/* Set DDRAM/CGRAM address. */
 	switch (line)
 	{
@@ -315,7 +335,7 @@ void lcdSetMode(uint8_t param)
 #ifdef USE_I2C_BUS
 	sendInternal(param, 0);
 #else
-	CLR(HD44780_RS_OUT, HD44780_RS);
+	CLR_RS();
 	lcdWrite(param);
 #endif
 }
@@ -327,7 +347,7 @@ void lcdPutc(uint8_t data)
 #ifdef USE_I2C_BUS
 	sendInternal(data, i2cConfig->rs_pin);
 #else
-	SET(HD44780_RS_OUT, HD44780_RS);
+	SET_RS();
 	lcdWrite(data);
 	/* Note:
 	 * After execution of the CGRAM/DDRAM data write/read instruction, the RAM address counter is incremented
@@ -612,9 +632,9 @@ void lcdClrBar(void)
 /*!	\brief	Initialize the LCD.
  * 	\note	This library use the I2C interface. */
 #ifdef USE_I2C_BUS
-void lcdInit(lcdI2C_ConfigStruct* config)
+void lcdInit(void* config)
 {
-	i2cConfig = config;
+	i2cConfig = (lcdI2C_ConfigStruct*) config;
 #ifdef USE_LCD2004
 	lcdWrite(0x03);
 	HAL_Delay(4);
@@ -637,21 +657,22 @@ void lcdInit(lcdI2C_ConfigStruct* config)
 
 void lcdBackLightOn(void)
 {
-	i2cConfig->backlight = (1 << 3);
+	i2cConfig->bl_pin = (1 << 3);
 	sendInternal(0x0Fu, 0);
 }
 
 void lcdBackLightOff(void)
 {
-	i2cConfig->backlight = (0 << 3);
+	i2cConfig->bl_pin = (0 << 3);
 	sendInternal(0x0Fu, 0);
 }
 #else /* USE_I2C_BUS */
 /*!	\brief	Initialize the LCD.
  * 	\note	This library use the 4-bit interface. */
-void lcdInit(void)
+void lcdInit(void* config)
 {
 	/* Peripheral initialization. */
+	fourBitConfig = (fourBit_ConfigStruct*) config;
 	/* LCD initialization. */
 	lcdWrite(0x30);
 	lcd10usDelay(INIT_CYCLE_TIME);
