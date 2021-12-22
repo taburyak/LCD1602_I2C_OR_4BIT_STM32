@@ -12,11 +12,57 @@
 #ifndef HD44780_H
 #define HD44780_H
 
-#include "lcd_cfg.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+//#define USE_I2C_BUS
+//#define USE_LCD2004
+
+#include "stdint.h"
+#include "stdbool.h"
+
+//-------------------------------
+// DEFAULT CONFIGURATIONS
+//-------------------------------
+#define DEFAULT_DISPLAY_CONFIG		DISPLAY_CONFIG_4bit_2L_5x8
+#define DEFAULT_ENTRY_MODE			ENTRY_MODE_INC_NO_SHIFT
+#define DEFAULT_VIEW_MODE			VIEW_MODE_DispOn_BlkOff_CrsOff
+
+//-------------------------------
+// SET MCU TIMINGS
+//-------------------------------
+#define BUSY_CYCLE_TIME				(5u)						/* x 10us. See datasheet for minimal value. */
+#define CLRSCR_CYCLE_TIME			(200u)						/* x 10us. See datasheet for minimal value. */
+#define RETHOME_CYCLE_TIME			(200u)						/* x 10us. See datasheet for minimal value. */
+#define INIT_CYCLE_TIME				(400u)
+//-------------------------------
+// CONFIGURE LCD WITH 4 LINES
+//-------------------------------
+#define START_ADDRESS_1st_LINE		(0x00u)
+#define START_ADDRESS_2nd_LINE		(0x40u)
+#ifdef USE_LCD2004
+#define START_ADDRESS_3rd_LINE		(0x14u)
+#define START_ADDRESS_4th_LINE		(0x54u)
+#else
+#define START_ADDRESS_3rd_LINE		(0x10u)
+#define START_ADDRESS_4th_LINE		(0x50u)
+#endif
+
+//-------------------------------
+// SET FORMATTED OUTPUT OPTIONS
+//-------------------------------
+#define USE_FORMATTED_OUTPUT	 	(1u)	/* 1 (true) or 0 (false) */
+#define TAB_SPACE					(4u)	/* 1 .. 255 */
+
+//-------------------------------
+// PROGRESS BAR OPTIONS
+//-------------------------------
+#define USE_PROGRESS_BAR			(1u)			/* 1 (true) or 0 (false) */
+#define USE_REGRESS_BAR				(1u)			/* 1 (true) or 0 (false) */
+#define PROGRESS_BAR_LINE			LCD_2nd_LINE	/* Select lcd line: 1, 2, 3, 4, ... */
+#define PROGRESS_BAR_HEIGHT			(5u)  			/* in pixel: 1(min), 2, 3, 4, 5, 6, 7, 8(max) */
+#define PROGRESS_BAR_WIDTH			(10u) 			/* Number of chars in lcd line:  1, 2, .. , 8, 16, 20 */
 
 //-------------------------------
 // CONSTANTS
@@ -59,6 +105,42 @@ extern "C" {
 //-------------------------------
 // LCDlib API
 //-------------------------------
+typedef void(*InitPeriph)(void);
+
+#ifdef USE_I2C_BUS
+
+typedef uint8_t(*SendInternal)(uint8_t data, uint8_t flags);
+
+typedef struct {
+	uint8_t en_pin;
+	uint8_t rs_pin;
+	uint8_t bl_pin;
+	uint8_t i2c_address;
+	SendInternal SendData;
+	InitPeriph InitPeriph;
+}lcdI2C_ConfigStruct;
+
+extern void lcdBackLightOn(void);
+extern void lcdBackLightOff(void);
+
+#else
+
+typedef void(*WritePinState)(bool state);
+
+typedef struct {
+	WritePinState en_pin;
+	WritePinState rs_pin;
+	WritePinState d7_pin;
+	WritePinState d6_pin;
+	WritePinState d5_pin;
+	WritePinState d4_pin;
+	uint32_t mcuFreq;
+	InitPeriph InitPeriph;
+}fourBit_ConfigStruct;
+
+#endif /* USE_I2C_BUS */
+
+extern void lcdInit(void* config);
 extern void lcdClrScr(void);
 extern void lcdReturn(void);
 extern void lcdSetMode(uint8_t param);
@@ -75,12 +157,6 @@ extern void lcdFtos(float value, uint8_t n);
 extern void lcdNtos(uint32_t value, uint8_t n);
 extern void lcdDrawBar(uint8_t data);
 extern void lcdClrBar(void);
-extern void lcdInit(void);
-
-#ifdef USE_I2C_BUS
-extern void lcdBackLightOn(void);
-extern void lcdBackLightOff(void);
-#endif
 
 #ifdef __cplusplus
 }
