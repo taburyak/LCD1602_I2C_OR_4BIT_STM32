@@ -16,7 +16,7 @@
 extern "C" {
 #endif
 
-//#define USE_I2C_BUS
+#define USE_I2C_BUS
 //#define USE_LCD2004
 
 #include "stdint.h"

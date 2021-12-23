@@ -9,6 +9,7 @@
 /* Copyright (C)2021 And Hon All right reserved			*/
 /*------------------------------------------------------*/
 #include "hd44780.h"
+#include "stddef.h"
 
 /*!	\brief	Macro-definitions. */
 #if (USE_PROGRESS_BAR)
@@ -75,7 +76,14 @@ static uint32_t lcdPow10(uint8_t n);
 #ifdef USE_I2C_BUS
 static uint8_t sendInternal(uint8_t data, uint8_t flags)
 {
-	return i2cConfig->SendData(data, flags);
+	if(i2cConfig->SendData != NULL)
+	{
+		return i2cConfig->SendData(data, flags);
+	}
+	else
+	{
+		return 0;
+	}
 }
 #else
 
@@ -635,15 +643,15 @@ void lcdClrBar(void)
 void lcdInit(void* config)
 {
 	i2cConfig = (lcdI2C_ConfigStruct*) config;
+	if(i2cConfig->InitPeriph != NULL)
+	{
+		i2cConfig->InitPeriph();
+	}
+	sendInternal(0x03, 0);
+	sendInternal(0x02, 0);
 #ifdef USE_LCD2004
-	lcdWrite(0x03);
-	HAL_Delay(4);
-	lcdWrite(0x03);
-	HAL_Delay(100);
-	lcdWrite(0x03);
-	HAL_Delay(1);
-	lcdWrite(0x02);
-	HAL_Delay(1);
+	sendInternal(0x03, 0);
+	sendInternal(0x02, 0);
 #endif /* USE_LCD2004 */
 	lcdConfig(DEFAULT_DISPLAY_CONFIG);
 	lcdSetMode(DEFAULT_VIEW_MODE);
@@ -673,6 +681,11 @@ void lcdInit(void* config)
 {
 	/* Peripheral initialization. */
 	fourBitConfig = (fourBit_ConfigStruct*) config;
+
+	if(fourBitConfig->InitPeriph != NULL)
+	{
+		fourBitConfig->InitPeriph();
+	}
 	/* LCD initialization. */
 	lcdWrite(0x30);
 	lcd10usDelay(INIT_CYCLE_TIME);
@@ -680,13 +693,13 @@ void lcdInit(void* config)
 	lcd10usDelay(INIT_CYCLE_TIME);
 #ifdef USE_LCD2004
 	lcdWrite(0x03);
-	HAL_Delay(4);
+	lcd10usDelay(BUSY_CYCLE_TIME);
 	lcdWrite(0x03);
-	HAL_Delay(100);
+	lcd10usDelay(INIT_CYCLE_TIME);
 	lcdWrite(0x03);
-	HAL_Delay(1);
+	lcd10usDelay(BUSY_CYCLE_TIME);
 	lcdWrite(0x02);
-	HAL_Delay(1);
+	lcd10usDelay(BUSY_CYCLE_TIME);
 #endif
 	lcdConfig(DEFAULT_DISPLAY_CONFIG);
 	lcdSetMode(DEFAULT_VIEW_MODE);
