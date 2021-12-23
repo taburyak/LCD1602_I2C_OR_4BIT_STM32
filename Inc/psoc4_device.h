@@ -13,8 +13,8 @@
 //-------------------------------
 #ifdef USE_I2C_BUS
 
-//#define LCD_I2C_ADDRESS		(0x27U)
-#define LCD_I2C_ADDRESS		(0x3FU)
+#define LCD_I2C_ADDRESS		(0x27U)
+//#define LCD_I2C_ADDRESS		(0x3FU)
 
 #define LCD_I2C_ADDRESS_7B	(LCD_I2C_ADDRESS << 0)
 #define PIN_RS    			(1 << 0)
@@ -23,17 +23,25 @@
 
 cy_stc_scb_i2c_context_t LCD_I2C_context;
 
-uint8_t sendInternal_psoc4(uint8_t data, uint8_t flags);
+void LcdInit_I2C(void);
+uint8_t SendInternal_psoc4(uint8_t data, uint8_t flags);
 
 lcdI2C_ConfigStruct lcdConfig = {
-		.SendData = sendInternal_psoc4,
+		.InitPeriph = LcdInit_I2C,
+		.SendData = SendInternal_psoc4,
 		.bl_pin = (0 << BACKLIGHT),
 		.rs_pin = PIN_RS,
 		.en_pin = PIN_EN,
 		.i2c_address = LCD_I2C_ADDRESS_7B
 };
 
-uint8_t sendInternal_psoc4(uint8_t data, uint8_t flags)
+void LcdInit_I2C(void)
+{
+	Cy_SCB_I2C_Init(LCD_I2C_HW, &LCD_I2C_config, &LCD_I2C_context);
+	Cy_SCB_I2C_Enable(LCD_I2C_HW, &LCD_I2C_context);
+}
+
+uint8_t SendInternal_psoc4(uint8_t data, uint8_t flags)
 {
 	cy_en_scb_i2c_status_t res;
 
