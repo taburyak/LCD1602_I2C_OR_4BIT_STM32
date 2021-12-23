@@ -13,8 +13,8 @@
 //-------------------------------
 #ifdef USE_I2C_BUS
 
-#define LCD_I2C_ADDRESS		(0x27U)
-//#define LCD_I2C_ADDRESS		(0x3FU)
+//#define LCD_I2C_ADDRESS		(0x27U)
+#define LCD_I2C_ADDRESS		(0x3FU)
 
 #define LCD_I2C_ADDRESS_7B	(LCD_I2C_ADDRESS << 0)
 #define PIN_RS    			(1 << 0)

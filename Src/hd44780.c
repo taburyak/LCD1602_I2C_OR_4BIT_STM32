@@ -647,8 +647,11 @@ void lcdInit(void* config)
 	{
 		i2cConfig->InitPeriph();
 	}
+	sendInternal(0x03, 0);
+	sendInternal(0x02, 0);
 #ifdef USE_LCD2004
-
+	sendInternal(0x03, 0);
+	sendInternal(0x02, 0);
 #endif /* USE_LCD2004 */
 	lcdConfig(DEFAULT_DISPLAY_CONFIG);
 	lcdSetMode(DEFAULT_VIEW_MODE);
@@ -690,13 +693,13 @@ void lcdInit(void* config)
 	lcd10usDelay(INIT_CYCLE_TIME);
 #ifdef USE_LCD2004
 	lcdWrite(0x03);
-	lcd10usDelay(INIT_CYCLE_TIME);
+	lcd10usDelay(BUSY_CYCLE_TIME);
 	lcdWrite(0x03);
 	lcd10usDelay(INIT_CYCLE_TIME);
 	lcdWrite(0x03);
-	lcd10usDelay(INIT_CYCLE_TIME);
+	lcd10usDelay(BUSY_CYCLE_TIME);
 	lcdWrite(0x02);
-	lcd10usDelay(INIT_CYCLE_TIME);
+	lcd10usDelay(BUSY_CYCLE_TIME);
 #endif
 	lcdConfig(DEFAULT_DISPLAY_CONFIG);
 	lcdSetMode(DEFAULT_VIEW_MODE);
