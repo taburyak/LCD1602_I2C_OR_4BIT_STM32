@@ -16,8 +16,8 @@
 #ifdef USE_I2C_BUS
 
 #define LCD_I2C_PORT		hi2c1
-#define LCD_I2C_ADDRESS		(0x27U) //I2S address for LCD2004
-//#define LCD_I2C_ADDRESS		(0x3FU) //I2S address for LCD1602
+//#define LCD_I2C_ADDRESS		(0x27U) //I2S address for LCD2004
+#define LCD_I2C_ADDRESS		(0x3FU) //I2S address for LCD1602
 
 #define LCD_I2C_ADDRESS_8B	(LCD_I2C_ADDRESS << 1) // Converting 7-bit addresses to 8-bit
 #define PIN_RS    			(1 << 0) //The bit that matches the pin_rs on PCF8574
