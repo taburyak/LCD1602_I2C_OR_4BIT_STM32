@@ -20,7 +20,7 @@
 //#define LCD_I2C_ADDRESS		(0x27U) //I2S address for LCD2004
 #define LCD_I2C_ADDRESS		(0x3FU) //I2S address for LCD1602
 
-#define LCD_I2C_ADDRESS_7B	(LCD_I2C_ADDRESS << 0)
+#define LCD_I2C_ADDRESS_7B	(LCD_I2C_ADDRESS << 0) //Without conversion, needed a 7-bit address
 #define PIN_RS    			(1 << 0) //The bit that matches the pin_rs on PCF8574
 #define PIN_EN    			(1 << 2) //The bit that matches the pin_en on PCF8574
 #define BACKLIGHT 			(1 << 3) //The bit that matches the pin_led on PCF8574
