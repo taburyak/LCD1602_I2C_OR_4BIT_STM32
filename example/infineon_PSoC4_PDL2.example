@@ -1,0 +1,148 @@
+#include "cy_pdl.h"
+#include "cybsp.h"
+#include "hd44780.h"
+#include "psoc4_device.h"
+#include "stdio.h"
+
+void imitationPrinting(char *ptr);
+
+int main(void)
+{
+	char str[17] = {};
+	float pi = 3.14;
+	int t = 123;
+	unsigned char men1[FONT_HEIGHT] = {0x0e,0x0e,0x04,0x1f,0x04,0x1a,0x01,0x00};
+	unsigned char men2[FONT_HEIGHT] = {0x07,0x07,0x0a,0x07,0x02,0x05,0x09,0x00};
+
+    cy_rslt_t result;
+
+    /* Initialize the device and board peripherals */
+    result = cybsp_init() ;
+    if (result != CY_RSLT_SUCCESS)
+    {
+        CY_ASSERT(0);
+    }
+
+    /* Enable global interrupts */
+    __enable_irq();
+
+    lcdInit(&lcdConfig);
+#ifdef USE_I2C_BUS
+    lcdBackLightOn();
+#endif /* USE_I2C_BUS */
+
+    for (;;)
+    {
+    	lcdClrScr();
+#ifdef USE_I2C_BUS
+    	lcdPuts("PSOC4AMC v3\nHD44780 I2C");
+#else
+    	lcdPuts("PSOC4AMC v2\nHD44780 4bit");
+#endif /* USE_I2C_BUS */
+		Cy_SysLib_Delay(5000);
+		uint32_t freq = Cy_SysClk_ClkHfGetFrequency();
+		lcdClrScr();
+		lcdPuts("GetHCLKFreq()\n\t");
+		lcdItos(freq / 1000000);
+		lcdPuts("MHz");
+		Cy_SysLib_Delay(5000);
+
+		for (int i = 0; i < 16; ++i)
+		{
+			lcdScroll(RIGHT);
+			Cy_SysLib_Delay(250);
+		}
+
+		lcdClrScr();
+
+		sprintf(str,"PSOC4AMC and");
+		imitationPrinting(str);
+		sprintf(str,"LCD WH1602A Demo");
+		lcdGoto(LCD_2nd_LINE,0);
+		imitationPrinting(str);
+		Cy_SysLib_Delay(3000);
+
+		for (int i = 0; i < 16; ++i)
+		{
+			lcdScroll(LEFT);
+			Cy_SysLib_Delay(250);
+		}
+
+		Cy_SysLib_Delay(1000);
+
+		for (int i = 0; i < 16; ++i)
+		{
+			lcdScroll(RIGHT);
+			Cy_SysLib_Delay(250);
+		}
+
+		Cy_SysLib_Delay(2000);
+		lcdClrScr();
+		lcdPuts("Float = ");
+		lcdFtos(pi,2);
+		lcdGoto(LCD_2nd_LINE,0);
+		lcdPuts("Integer = ");
+		lcdItos(t);
+		Cy_SysLib_Delay(3000);
+		lcdSetMode(VIEW_MODE_DispOn_BlkOff_CrsOn);
+		lcdGoto(LCD_2nd_LINE,16);
+		for (int i = 0; i < 16; ++i)
+		{
+			lcdBackSpace();
+			Cy_SysLib_Delay(100);
+		}
+
+		lcdGoto(LCD_1st_LINE,16);
+
+		for (int i = 0; i < 16; ++i)
+		{
+			lcdBackSpace();
+			Cy_SysLib_Delay(100);
+		}
+
+		lcdSetMode(VIEW_MODE_DispOn_BlkOff_CrsOff);
+		lcdReturn();
+		lcdPuts("\tLoading...");
+		lcdGoto(PROGRESS_BAR_LINE, PROGRESS_BAR_WIDTH);
+		lcdPuts("[   %]");
+		for(uint8_t i = 0; i <= PROGRESS_BAR_MAX_LOAD; ++i)
+		{
+			lcdGoto(PROGRESS_BAR_LINE, PROGRESS_BAR_WIDTH + 1);
+			lcdNtos((i*100)/PROGRESS_BAR_MAX_LOAD, 3 );
+			lcdDrawBar(i);
+			Cy_SysLib_Delay(100);
+		}
+
+		Cy_SysLib_Delay(3000);
+		lcdClrScr();
+		lcdLoadChar(men1,6);
+		lcdLoadChar(men2,7);
+		lcdPuts("\tRunning men\n");
+
+		for(uint8_t i = 0; i < 8; i++)
+		{
+			lcdPutc(6);
+			Cy_SysLib_Delay(250);
+			cursorShift(LEFT);
+			lcdPutc(' ');
+			lcdPutc(7);
+			Cy_SysLib_Delay(250);
+			cursorShift(LEFT);
+			lcdPutc(' ');
+		}
+    }
+}
+
+void imitationPrinting(char *ptr)
+{
+	lcdSetMode(VIEW_MODE_DispOn_BlkOff_CrsOn);
+
+	while(*ptr != 0)
+	{
+		lcdPutc(*ptr++);
+		Cy_SysLib_Delay(100);
+	}
+
+	lcdSetMode(VIEW_MODE_DispOn_BlkOff_CrsOff);
+}
+/* [] END OF FILE */

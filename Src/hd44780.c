@@ -1,12 +1,12 @@
 /*------------------------------------------------------*/
 /* File:       Library for HD44780 compatible displays  */
-/* Version:	   v3.00  						 			*/
-/* Author:     GrAnd/www.MakeSystem.net					*/
-/* 				https://stm32withoutfear.blogspot.com	*/
-/* Tested on:  AVR, STM32F10X, STM32F4XX			 	*/
+/* Version:	   v4.15  						 			*/
+/* Author:     Andrii Honcharenko						*/
+/* 			   https://stm32withoutfear.blogspot.com	*/
+/* Tested on:  STM32 HAL library, PSoC4 PDL2 library	*/
 /* License:	   GNU LGPLv2.1		 		 	 			*/
 /*------------------------------------------------------*/
-/* Copyright (C)2021 And Hon All right reserved			*/
+/* Copyright (C)2021 AH All right reserved				*/
 /*------------------------------------------------------*/
 #include "hd44780.h"
 #include "stddef.h"
@@ -59,7 +59,7 @@ static fourBit_ConfigStruct* fourBitConfig;
 #define CLR_D5()	(fourBitConfig->d5_pin(LOW))
 #define SET_D4()	(fourBitConfig->d4_pin(HIGH))
 #define CLR_D4()	(fourBitConfig->d4_pin(LOW))
-#define MCU_FREQ_VALUE (fourBitConfig->mcuFreq / 1000000U)
+#define MCU_FREQ_VALUE (fourBitConfig->mcuFreq / 1000000U) //MCU clock frequency in MHz
 
 static void lcdWrite(uint8_t data);
 static void lcdStrobe(void);
