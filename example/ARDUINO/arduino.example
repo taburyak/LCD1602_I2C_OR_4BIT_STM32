@@ -1,0 +1,136 @@
+#include <Arduino.h>
+#include "hd44780.h"
+#include "arduinoUno_device.h"
+#include "stdio.h"
+
+char str[17] = {};
+float pi = 3.14;
+int t = 123;
+unsigned char men1[FONT_HEIGHT] = {0x0e,0x0e,0x04,0x1f,0x04,0x1a,0x01,0x00};
+unsigned char men2[FONT_HEIGHT] = {0x07,0x07,0x0a,0x07,0x02,0x05,0x09,0x00};
+
+void imitationPrinting(char *ptr)
+{
+	lcdSetMode(VIEW_MODE_DispOn_BlkOff_CrsOn);
+
+	while(*ptr != 0)
+	{
+		lcdPutc(*ptr++);
+		delay(100);
+	}
+
+	lcdSetMode(VIEW_MODE_DispOn_BlkOff_CrsOff);
+}
+
+void setup()
+{
+  lcdInit(&lcdConfig);
+#ifdef USE_I2C_BUS
+  lcdBackLightOn();
+#else
+
+#endif /* USE_I2C_BUS */
+}
+
+void loop()
+{
+  lcdClrScr();
+#ifdef USE_I2C_BUS
+	lcdPuts("Arduino UNO v2\nHD44780 I2C");
+#else
+	lcdPuts("Arduino UNO v2\nHD44780 4bit");
+#endif /* USE_I2C_BUS */
+	delay(5000);
+	uint32_t freq = 8000000;
+	lcdClrScr();
+	lcdPuts("GetHCLKFreq()\n\t");
+	lcdItos(freq / 1000000);
+	lcdPuts("MHz");
+	delay(5000);
+
+	for (int i = 0; i < 16; ++i)
+	{
+		lcdScroll(RIGHT);
+		delay(250);
+	}
+
+	lcdClrScr();
+
+	sprintf(str,"Arduino UNO and");
+	imitationPrinting(str);
+	sprintf(str,"LCD WH1602A Demo");
+	lcdGoto(LCD_2nd_LINE,0);
+	imitationPrinting(str);
+	delay(3000);
+
+	for (int i = 0; i < 16; ++i)
+	{
+		lcdScroll(LEFT);
+		delay(250);
+	}
+
+	delay(1000);
+
+	for (int i = 0; i < 16; ++i)
+	{
+		lcdScroll(RIGHT);
+		delay(250);
+	}
+
+	delay(2000);
+	lcdClrScr();
+	lcdPuts("Float = ");
+	lcdFtos(pi,2);
+	lcdGoto(LCD_2nd_LINE,0);
+	lcdPuts("Integer = ");
+	lcdItos(t);
+	delay(3000);
+	lcdSetMode(VIEW_MODE_DispOn_BlkOff_CrsOn);
+	lcdGoto(LCD_2nd_LINE,16);
+
+	for (int i = 0; i < 16; ++i)
+	{
+		lcdBackSpace();
+		delay(100);
+	}
+
+	lcdGoto(LCD_1st_LINE,16);
+
+	for (int i = 0; i < 16; ++i)
+	{
+		lcdBackSpace();
+		delay(100);
+	}
+
+	lcdSetMode(VIEW_MODE_DispOn_BlkOff_CrsOff);
+	lcdReturn();
+	lcdPuts("\tLoading...");
+	lcdGoto(PROGRESS_BAR_LINE, PROGRESS_BAR_WIDTH);
+	lcdPuts("[   %]");
+
+	for(uint8_t i = 0; i <= PROGRESS_BAR_MAX_LOAD; ++i)
+	{
+		lcdGoto(PROGRESS_BAR_LINE, PROGRESS_BAR_WIDTH + 1);
+		lcdNtos((i*100)/PROGRESS_BAR_MAX_LOAD, 3 );
+		lcdDrawBar(i);
+		delay(100);
+	}
+
+    delay(3000);
+    lcdClrScr();
+    lcdLoadChar(men1,6);
+    lcdLoadChar(men2,7);
+    lcdPuts("\tRunning men\n");
+
+    for(uint8_t i = 0; i < 8; i++)
+    {
+		lcdPutc(6);
+		delay(250);
+		cursorShift(LEFT);
+		lcdPutc(' ');
+		lcdPutc(7);
+		delay(250);
+		cursorShift(LEFT);
+		lcdPutc(' ');
+    }
+}
